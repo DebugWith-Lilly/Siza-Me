@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siza-Me | OTP Verification</title>
+</head>
+<body>
+
+    <header>
+        <h1>Siza-Me</h1>
+    </header>
+
+    <main>
+        <h2>Verify Your Email</h2>
+
+        <p>
+            Enter the six-digit verification code sent to your email address.
+        </p>
+
+        <form id="otp-form">
+
+            <label>Verification Code:</label>
+
+            <div id="otp-inputs">
+                <input type="text" class="otp-digit" name="digit1"
+                       maxlength="1" inputmode="numeric" pattern="[0-9]"
+                       aria-label="Digit 1" required>
+
+                <input type="text" class="otp-digit" name="digit2"
+                       maxlength="1" inputmode="numeric" pattern="[0-9]"
+                       aria-label="Digit 2" required>
+
+                <input type="text" class="otp-digit" name="digit3"
+                       maxlength="1" inputmode="numeric" pattern="[0-9]"
+                       aria-label="Digit 3" required>
+
+                <input type="text" class="otp-digit" name="digit4"
+                       maxlength="1" inputmode="numeric" pattern="[0-9]"
+                       aria-label="Digit 4" required>
+
+                <input type="text" class="otp-digit" name="digit5"
+                       maxlength="1" inputmode="numeric" pattern="[0-9]"
+                       aria-label="Digit 5" required>
+
+                <input type="text" class="otp-digit" name="digit6"
+                       maxlength="1" inputmode="numeric" pattern="[0-9]"
+                       aria-label="Digit 6" required>
+            </div>
+
+            <button type="submit">Verify Code</button>
+
+        </form>
+
+        <p id="otp-message" role="status"></p>
+
+        <p>
+            Didn't receive a code?
+            <button type="button" id="resend-otp">Resend Code</button>
+        </p>
+
+        <a href="login.html">Back to Welcome Back Page</a>
+    </main>
+
+    <footer>
+        <p>My community. My Safety. My Voice.</p>
+    </footer>
+
+    <script>
+        const otpInputs = document.querySelectorAll(".otp-digit");
+        const otpForm = document.getElementById("otp-form");
+        const otpMessage = document.getElementById("otp-message");
+
+        // Allow only one digit in each block.
+        otpInputs.forEach((input, index) => {
+            input.addEventListener("input", () => {
+                input.value = input.value.replace(/[^0-9]/g, "").slice(-1);
+
+                if (input.value && index < otpInputs.length - 1) {
+                    otpInputs[index + 1].focus();
+                }
+
+                otpMessage.textContent = "";
+            });
+
+            // Go back to the previous block using Backspace.
+            input.addEventListener("keydown", (event) => {
+                if (
+                    event.key === "Backspace" &&
+                    input.value === "" &&
+                    index > 0
+                ) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Allow all six digits to be pasted at once.
+        otpInputs[0].addEventListener("paste", (event) => {
+            event.preventDefault();
+
+            const pastedCode = event.clipboardData
+                .getData("text")
+                .replace(/\D/g, "")
+                .slice(0, 6);
+
+            pastedCode.split("").forEach((digit, index) => {
+                otpInputs[index].value = digit;
+            });
+
+            otpInputs[Math.min(pastedCode.length, 5)].focus();
+        });
+
+        // Collect the six digits when the form is submitted.
+        otpForm.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            const otp = Array.from(otpInputs)
+                .map(input => input.value)
+                .join("");
+
+            if (!/^\d{6}$/.test(otp)) {
+                otpMessage.textContent =
+                    "Please enter all six digits.";
+                return;
+            }
+
+            // TODO: Send the OTP to the backend for verification.
+            otpMessage.textContent =
+                "Six-digit code entered. Backend verification is not connected yet.";
+
+            console.log("OTP entered:", otp);
+        });
+
+        // TODO: Connect this button to the backend resend-code endpoint.
+        document.getElementById("resend-otp").addEventListener("click", () => {
+            otpMessage.textContent =
+                "The resend-code feature is not connected yet.";
+        });
+    </script>
+    <script type="module" src="script.js"></script>
+
+</body>
+</html>
