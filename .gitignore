@@ -1,0 +1,8 @@
+.firebase/
+node_modules/
+.env
+.env.*
+!.env.example
+serviceAccountKey.json
+*-service-account*.json
+public/script.js.backup
