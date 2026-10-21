@@ -1,70 +1,464 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Universal character set encoding -->
     <meta charset="UTF-8">
+
+    <!-- Responsive viewport configuration for mobile and laptop screen alignment -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Browser tab title -->
     <title>Siza-Me | OTP Verification</title>
+
+    <!-- Google Font import: Poppins for clean modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================================
+           GLOBAL RESET & BASE LAYOUT STYLES
+           ========================================================================== */
+
+        /* Universal box-sizing reset to ensure padding doesn't affect dimensions */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Outer body container setting full page background and layout */
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f6efe6; /* Exact warm cream background color applied to the entire page */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ==========================================================================
+           MAIN RESPONSIVE SCREEN CONTAINER STYLES (NO PHONE OUTLINE)
+           ========================================================================== */
+
+        /* Main responsive screen display container filling the viewport */
+        .phone-screen-container {
+            position: relative;
+            width: 100%;
+            min-height: 100vh; /* Full viewport height for laptop and mobile responsiveness */
+            background-color: #f6efe6; /* Exact warm cream background color from design theme */
+            overflow: hidden;   /* Keeps top and bottom artwork clipped cleanly inside viewport edges */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Spaces header, main content, and footer */
+            align-items: center;
+            padding: 40px 20px; /* Responsive padding */
+        }
+
+        /* ==========================================================================
+           HEADER & FOOTER STYLES
+           ========================================================================== */
+
+        /* Header container styling */
+        header {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Header brand title styling */
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #2b422a; /* Deep forest green branding color */
+            letter-spacing: -0.5px;
+        }
+
+        /* Footer container styling */
+        footer {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        /* Footer text styling */
+        footer p {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #555555;
+        }
+
+        /* ==========================================================================
+           SCREEN CONTENT & TYPOGRAPHY STYLES
+           ========================================================================== */
+
+        /* Main content wrapper container */
+        main {
+            position: relative;
+            z-index: 5;
+            width: 100%;
+            max-width: 420px; /* Limits max width on large laptop screens for optimal form readability */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            margin: auto 0; /* Centers content vertically within flex container */
+        }
+
+        /* Secondary heading "Verify Your Email" */
+        main h2 {
+            font-size: clamp(2rem, 3.5vw, 2.6rem); /* Responsive font scaling for mobile and laptops */
+            font-weight: 700;
+            color: #2b422a; /* Exact deep forest green tone matching theme branding */
+            letter-spacing: -0.8px;
+            line-height: 1.1;
+            margin-bottom: 12px;
+        }
+
+        /* Instructions description paragraph styling */
+        main > p:first-of-type {
+            font-size: clamp(0.9rem, 1.8vw, 0.98rem);
+            font-weight: 500;
+            color: #333333;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        /* ==========================================================================
+           OTP FORM & INPUT STYLES
+           ========================================================================== */
+
+        /* OTP form layout container */
+        #otp-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Verification code label styling */
+        #otp-form label {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #2b422a;
+            margin-bottom: 12px;
+            align-self: flex-start;
+            padding-left: 4px;
+        }
+
+        /* Container grouping the 6 OTP digit textboxes */
+        #otp-inputs {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        /* Individual OTP digit input boxes */
+        .otp-digit {
+            width: 48px;
+            height: 54px;
+            text-align: center;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2b422a;
+            background-color: #fffaf5;
+            border: 1.5px solid #d4c5b9;
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        /* OTP digit input focus state for user feedback */
+        .otp-digit:focus {
+            border-color: #364935;
+            box-shadow: 0 0 0 3px rgba(54, 73, 53, 0.15);
+        }
+
+        /* ==========================================================================
+           PRIMARY BUTTON STYLES (VERIFY CODE BUTTON)
+           ========================================================================== */
+
+        /* Primary "Verify Code" Submit Button styling */
+        #otp-form button[type="submit"] {
+            /* Flexbox alignment for button text */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            /* Width and internal button padding */
+            width: 100%;
+            padding: 14px 24px;
+
+            /* Fully rounded pill capsule shape matching theme */
+            border-radius: 50px;
+
+            /* Exact dark olive green background color matching theme branding */
+            background-color: #364935;
+            color: #ffffff; /* Clean white text color */
+
+            /* Button text typography settings */
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            text-decoration: none;
+
+            /* Interactive animations and state transitions */
+            transition: background-color 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
+            cursor: pointer;
+            border: none;
+            outline: none;
+
+            /* Soft grounding shadow under button */
+            box-shadow: 0 4px 14px rgba(54, 73, 53, 0.25);
+            margin-top: 5px;
+        }
+
+        /* Hover State for Verify Code Button */
+        #otp-form button[type="submit"]:hover {
+            background-color: #293828; /* Deepens green shade slightly on hover */
+            transform: translateY(-2px); /* Subtle upward lift effect */
+            box-shadow: 0 6px 18px rgba(54, 73, 53, 0.35); /* Enhances shadow depth */
+        }
+
+        /* Active Press State for Verify Code Button */
+        #otp-form button[type="submit"]:active {
+            transform: translateY(0); /* Returns button position down on click press */
+            box-shadow: 0 2px 8px rgba(54, 73, 53, 0.2);
+        }
+
+        /* Focus state for keyboard accessibility */
+        #otp-form button[type="submit"]:focus-visible {
+            outline: 2px solid #364935;
+            outline-offset: 3px;
+        }
+
+        /* ==========================================================================
+           STATUS MESSAGE & SECONDARY ACTIONS STYLING
+           ========================================================================== */
+
+        /* Status message paragraph display styling */
+        #otp-message {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #b85834; /* Terracotta error/status tone */
+            margin-top: 15px;
+            min-height: 20px;
+        }
+
+        /* Paragraph wrapper for resend code prompt */
+        main > p:last-of-type {
+            font-size: 0.88rem;
+            color: #555555;
+            margin-top: 25px;
+        }
+
+        /* "Resend Code" interactive button styling */
+        #resend-otp {
+            background: none;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #364935;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            margin-left: 4px;
+            transition: color 0.25s ease;
+        }
+
+        /* Resend button hover state */
+        #resend-otp:hover {
+            color: #293828;
+        }
+
+        /* Back to login page navigation link styling */
+        main > a {
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: #6b5a4e;
+            text-decoration: none;
+            transition: color 0.25s ease;
+        }
+
+        /* Back link hover state */
+        main > a:hover {
+            color: #2b422a;
+            text-decoration: underline;
+        }
+
+        /* ==========================================================================
+           BACKGROUND ARTWORK & TRADITIONAL PATTERN SVG OVERLAYS
+           ========================================================================== */
+
+        /* Top-Left Organic Shape Corner Container */
+        .top-left-decor {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 155px;
+            height: 165px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Bottom-Left Protea Floral Graphic Container */
+        .bottom-left-decor {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 175px;
+            height: 250px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Bottom-Right Traditional Geometric Pattern Container */
+        .bottom-right-decor {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 180px;
+            height: 200px;
+            z-index: 1;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
 
-    <header>
-        <h1>Siza-Me</h1>
-    </header>
+    <!-- Main Responsive Screen Display Container -->
+    <div class="phone-screen-container">
 
-    <main>
-        <h2>Verify Your Email</h2>
+        <!-- Top Left Organic Graphic SVG Overlay -->
+        <div class="top-left-decor" aria-hidden="true">
+            <svg width="100%" height="100%" viewBox="0 0 155 165" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Main Terracotta Top Curved Shape -->
+                <path d="M0 0 H120 C120 0 100 45 60 55 C20 65 0 120 0 120 V0 Z" fill="#C26638"/>
+                <!-- Soft Tan Underlayer Curve -->
+                <path d="M0 50 C20 50 40 70 30 110 C20 150 0 165 0 165 V50 Z" fill="#E8B87D" opacity="0.85"/>
+                <!-- Abstract White Line Accents inside top shape -->
+                <path d="M15 10 L35 40 M30 10 L50 35 M45 10 L65 30 M10 25 L25 50" stroke="#EFE1CE" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+        </div>
 
-        <p>
-            Enter the six-digit verification code sent to your email address.
-        </p>
+        <header>
+            <h1>Siza-Me</h1>
+        </header>
 
-        <form id="otp-form">
+        <main>
+            <h2>Verify Your Email</h2>
 
-            <label>Verification Code:</label>
+            <p>
+                Enter the six-digit verification code sent to your email address.
+            </p>
 
-            <div id="otp-inputs">
-                <input type="text" class="otp-digit" name="digit1"
-                       maxlength="1" inputmode="numeric" pattern="[0-9]"
-                       aria-label="Digit 1" required>
+            <form id="otp-form">
 
-                <input type="text" class="otp-digit" name="digit2"
-                       maxlength="1" inputmode="numeric" pattern="[0-9]"
-                       aria-label="Digit 2" required>
+                <label>Verification Code:</label>
 
-                <input type="text" class="otp-digit" name="digit3"
-                       maxlength="1" inputmode="numeric" pattern="[0-9]"
-                       aria-label="Digit 3" required>
+                <div id="otp-inputs">
+                    <input type="text" class="otp-digit" name="digit1"
+                           maxlength="1" inputmode="numeric" pattern="[0-9]"
+                           aria-label="Digit 1" required>
 
-                <input type="text" class="otp-digit" name="digit4"
-                       maxlength="1" inputmode="numeric" pattern="[0-9]"
-                       aria-label="Digit 4" required>
+                    <input type="text" class="otp-digit" name="digit2"
+                           maxlength="1" inputmode="numeric" pattern="[0-9]"
+                           aria-label="Digit 2" required>
 
-                <input type="text" class="otp-digit" name="digit5"
-                       maxlength="1" inputmode="numeric" pattern="[0-9]"
-                       aria-label="Digit 5" required>
+                    <input type="text" class="otp-digit" name="digit3"
+                           maxlength="1" inputmode="numeric" pattern="[0-9]"
+                           aria-label="Digit 3" required>
 
-                <input type="text" class="otp-digit" name="digit6"
-                       maxlength="1" inputmode="numeric" pattern="[0-9]"
-                       aria-label="Digit 6" required>
-            </div>
+                    <input type="text" class="otp-digit" name="digit4"
+                           maxlength="1" inputmode="numeric" pattern="[0-9]"
+                           aria-label="Digit 4" required>
 
-            <button type="submit">Verify Code</button>
+                    <input type="text" class="otp-digit" name="digit5"
+                           maxlength="1" inputmode="numeric" pattern="[0-9]"
+                           aria-label="Digit 5" required>
 
-        </form>
+                    <input type="text" class="otp-digit" name="digit6"
+                           maxlength="1" inputmode="numeric" pattern="[0-9]"
+                           aria-label="Digit 6" required>
+                </div>
 
-        <p id="otp-message" role="status"></p>
+                <button type="submit">Verify Code</button>
 
-        <p>
-            Didn't receive a code?
-            <button type="button" id="resend-otp">Resend Code</button>
-        </p>
+            </form>
 
-        <a href="login.html">Back to Welcome Back Page</a>
-    </main>
+            <p id="otp-message" role="status"></p>
 
-    <footer>
-        <p>My community. My Safety. My Voice.</p>
-    </footer>
+            <p>
+                Didn't receive a code?
+                <button type="button" id="resend-otp">Resend Code</button>
+            </p>
+
+            <a href="login.html">Back to Welcome Back Page</a>
+        </main>
+
+        <footer>
+            <p>My community. My Safety. My Voice.</p>
+        </footer>
+
+        <!-- Bottom Left Protea Botanical Illustration SVG Overlay -->
+        <div class="bottom-left-decor" aria-hidden="true">
+            <svg width="100%" height="100%" viewBox="0 0 175 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background Leaf 1 (Dark Green) -->
+                <path d="M-10 120 C30 110 70 150 50 210 C10 210 -10 170 -10 120 Z" fill="#2E402D"/>
+                <!-- Background Leaf 2 (Olive Green) -->
+                <path d="M30 180 C80 160 110 200 80 250 C40 250 20 220 30 180 Z" fill="#4B5C40"/>
+                <!-- Soft Tan Curve Background -->
+                <path d="M-20 200 C30 190 80 220 70 270 H-20 V200 Z" fill="#E8B87D" opacity="0.8"/>
+                
+                <!-- Protea Flower Petals Base -->
+                <g transform="translate(10, 140)">
+                    <path d="M35 50 C15 30 10 0 35 -10 C45 10 45 30 35 50 Z" fill="#C26638"/>
+                    <path d="M35 50 C25 25 30 -5 48 -15 C55 10 50 30 35 50 Z" fill="#D87846"/>
+                    <path d="M35 50 C35 20 50 -10 65 -12 C68 15 58 35 35 50 Z" fill="#C26638"/>
+                    <path d="M35 50 C45 25 65 0 80 5 C78 25 60 40 35 50 Z" fill="#D6A35C"/>
+                    <path d="M35 50 C5 35 -5 10 15 0 C25 20 30 38 35 50 Z" fill="#B85834"/>
+                    <!-- Protea Stem -->
+                    <path d="M35 50 L10 110" stroke="#2E402D" stroke-width="7" stroke-linecap="round"/>
+                </g>
+            </svg>
+        </div>
+
+        <!-- Bottom Right Traditional Geometric Pattern SVG Overlay -->
+        <div class="bottom-right-decor" aria-hidden="true">
+            <svg width="100%" height="100%" viewBox="0 0 180 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background Curved Arch (Terracotta Orange) -->
+                <path d="M180 40 C110 40 40 100 20 200 H180 V40 Z" fill="#C26638"/>
+                
+                <!-- Traditional Chevron / Triangular Geometric Pattern Mask -->
+                <g opacity="0.9">
+                    <!-- Chevron Stripe 1 (Cream White) -->
+                    <path d="M180 80 L120 140 L180 200" stroke="#F6EFE6" stroke-width="12" stroke-linecap="square" fill="none"/>
+                    <!-- Chevron Stripe 2 (Teal / Dark Olive) -->
+                    <path d="M180 105 L140 145 L180 185" stroke="#364935" stroke-width="10" stroke-linecap="square" fill="none"/>
+                    <!-- Chevron Stripe 3 (Tan Gold) -->
+                    <path d="M180 125 L155 150 L180 175" stroke="#D6A35C" stroke-width="8" stroke-linecap="square" fill="none"/>
+                    
+                    <!-- Additional Pattern Lines in Corner -->
+                    <line x1="80" y1="200" x2="180" y2="100" stroke="#364935" stroke-width="6"/>
+                    <line x1="110" y1="200" x2="180" y2="130" stroke="#F6EFE6" stroke-width="6"/>
+                    <line x1="140" y1="200" x2="180" y2="160" stroke="#D6A35C" stroke-width="6"/>
+                </g>
+            </svg>
+        </div>
+
+    </div>
 
     <script>
         const otpInputs = document.querySelectorAll(".otp-digit");
