@@ -307,16 +307,144 @@
                         required>
                 </div>
 
-                <!-- Password -->
-                <div class="input-group">
-                    <label for="password">Password</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="Enter your password"
-                        required>
-                </div>
+               !-- Password -->
+<div class="input-group">
+    <label for="password">Password</label>
+
+    <!-- Added by: Thumbi
+         Purpose: Add a show/hide password button. -->
+    <div class="password-wrapper">
+        <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            required>
+
+        <button
+            type="button"
+            id="togglePassword"
+            class="password-toggle"
+            aria-label="Show password"
+            aria-pressed="false">
+            <svg id="eyeIcon"
+                 xmlns="http://www.w3.org/2000/svg"
+                 width="22" height="22"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="2"
+                 stroke-linecap="round"
+                 stroke-linejoin="round"
+                 aria-hidden="true">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+        </button>
+        
+<!-- ADDED BY THUMBI: First-time phone enrollment pop-up -->
+<div id="phone-modal" class="phone-modal" hidden>
+    <div class="phone-modal-card" role="dialog"
+         aria-modal="true" aria-labelledby="phone-modal-title">
+
+        <button type="button" id="close-phone-modal"
+                class="modal-close" aria-label="Close">×</button>
+
+        <p class="modal-eyebrow">SIZA-ME SECURITY</p>
+        <h2 id="phone-modal-title">Secure Your Account</h2>
+        <p class="modal-description">
+            Add your phone number to protect your account with
+            two-step verification.
+        </p>
+<!-- Added by: Thumbi -->
+<label for="mfa-phone">Phone number</label>
+<input type="tel" id="mfa-phone"
+       placeholder="+27 82 123 4567"
+       autocomplete="tel">
+        <div id="recaptcha-container"></div>
+
+        <p id="phone-modal-message" role="status"
+           aria-live="polite"></p>
+
+        <button type="button" id="send-phone-code" class="primary-btn">
+            Send Verification Code
+        </button>
+
+        <button type="button" id="cancel-phone-modal"
+                class="modal-cancel">Cancel</button>
+    </div>
+</div>
+<!-- END ADDED SECTION -->
+
+    </div>
+</div>
+
+<style>
+    /* Added by: Thumbi
+       Purpose: Position the eye icon inside the password field. */
+
+    .password-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .password-wrapper input {
+        padding-right: 52px;
+    }
+
+    .password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 14px;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px;
+        border: none;
+        background: transparent;
+        color: #364935;
+        cursor: pointer;
+    }
+
+    .password-toggle:focus-visible {
+        outline: 2px solid #364935;
+        outline-offset: 3px;
+        border-radius: 4px;
+    }
+</style>
+
+<script>
+    // Added by: Thumbi
+    // Purpose: Toggle password visibility without changing its value.
+
+    const passwordInput = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+    const eyeIcon = document.getElementById("eyeIcon");
+
+    if (passwordInput && togglePassword && eyeIcon) {
+        togglePassword.addEventListener("click", function () {
+            const isHidden = passwordInput.type === "password";
+
+            passwordInput.type = isHidden ? "text" : "password";
+
+            togglePassword.setAttribute(
+                "aria-label",
+                isHidden ? "Hide password" : "Show password"
+            );
+
+            togglePassword.setAttribute(
+                "aria-pressed",
+                String(isHidden)
+            );
+
+            eyeIcon.innerHTML = isHidden
+                ? '<path d="M3 3l18 18"/><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"/><path d="M9.9 5.2A11 11 0 0 1 12 5c6.5 0 10 7 10 7a13 13 0 0 1-3 3.8"/><path d="M6.6 6.6C3.6 8.5 2 12 2 12s3.5 7 10 7a10 10 0 0 0 4-.8"/>'
+                : '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
+        });
+    }
+</script>
+
 
                 <!-- Forgot Password -->
                 <a href="#" class="forgot-password">
@@ -380,8 +508,96 @@
 
     </div>
 
-    <!-- Script connection -->
+   
+<!-- Script connection -->
 <script type="module" src="script.js"></script>
+
+<!-- Added by: Thumbi
+     Purpose: Display a partially masked email address for privacy.
+     The original email value remains unchanged for authentication. -->
+
+<style>
+    .email-mask-display {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        padding: 14px 18px;
+        border: 1.5px solid #d4c5b9;
+        border-radius: 14px;
+        background-color: #fffaf5;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.95rem;
+        color: #262626;
+        pointer-events: none;
+        box-sizing: border-box;
+    }
+
+    .email-mask-wrapper {
+        position: relative;
+        width: 100%;
+    }
+</style>
+
+
+<script>
+    // Added by: Thumbi
+    // Purpose: Mask the email visually when the field loses focus.
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const emailInput = document.getElementById("email");
+
+        if (!emailInput) return;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "email-mask-wrapper";
+
+        emailInput.parentNode.insertBefore(wrapper, emailInput);
+        wrapper.appendChild(emailInput);
+
+        const maskedDisplay = document.createElement("div");
+        maskedDisplay.className = "email-mask-display";
+        maskedDisplay.hidden = true;
+        maskedDisplay.setAttribute("aria-hidden", "true");
+        wrapper.appendChild(maskedDisplay);
+
+        // Added by: Thumbi
+        // Purpose: Hide part of the email username for privacy.
+        function maskEmail(email) {
+            const atIndex = email.lastIndexOf("@");
+
+            if (atIndex <= 0) return email;
+
+            const username = email.substring(0, atIndex);
+            const domain = email.substring(atIndex);
+
+            return username.substring(0, Math.min(3, username.length))
+                + "***" + domain;
+        }
+
+        // Added by: Thumbi
+        // Purpose: Display the masked email when the field loses focus.
+        emailInput.addEventListener("blur", function () {
+            const email = emailInput.value.trim();
+
+            if (email && email.includes("@")) {
+                maskedDisplay.textContent = maskEmail(email);
+                emailInput.style.color = "transparent";
+                maskedDisplay.hidden = false;
+            } else {
+                maskedDisplay.hidden = true;
+                emailInput.style.color = "";
+            }
+        });
+
+        // Added by: Thumbi
+        // Purpose: Restore the full email when the user clicks back into the field.
+        emailInput.addEventListener("focus", function () {
+            emailInput.style.color = "";
+            maskedDisplay.hidden = true;
+        });
+    });
+</script>
 
 </body>
 </html>
