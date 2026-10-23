@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Siza-Me | Emergency SOS</title>
+</head>
+
+<body>
+
+    <div class="sos-page">
+
+        <header class="sos-header">
+            <a href="dashboard.html">Back to Dashboard</a>
+        </header>
+
+        <main class="sos-main">
+
+            <section class="sos-scanner-section">
+
+                <div class="sos-scanner" id="sos-scanner">
+
+                    <div class="sos-ripple sos-ripple-one"></div>
+                    <div class="sos-ripple sos-ripple-two"></div>
+                    <div class="sos-ripple sos-ripple-three"></div>
+
+                    <button
+                        type="button"
+                        id="sos-button"
+                        class="sos-button"
+                        aria-label="Activate emergency SOS"
+                    >
+                        SOS
+                    </button>
+
+                </div>
+
+                <p id="sos-status" role="status" aria-live="polite">
+                    SOS is inactive.
+                </p>
+
+                <p id="location-status" role="status" aria-live="polite">
+                    Location has not been requested.
+                </p>
+
+            </section>
+
+            <section
+                class="sos-delivery-section"
+                aria-labelledby="delivery-heading"
+            >
+
+                <h2 id="delivery-heading">Alert Status</h2>
+
+                <p id="safe-circle-status">
+                    Your Safe Circle is not connected yet.
+                </p>
+
+                <ul id="delivery-status-list" aria-live="polite"></ul>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script src="sos.js"></script>
+
+</body>
+</html>
