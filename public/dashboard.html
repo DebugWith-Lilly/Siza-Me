@@ -284,12 +284,11 @@
         }
 
         /* Card background colors matching design palette */
-        .feature-grid a:nth-child(1) { background-color: #f5d3c4; } /* Emergency */
+        .feature-grid a:nth-child(1) { background-color: #f5d3c4; } /* Siza-me tracker */
         .feature-grid a:nth-child(2) { background-color: #dee8d8; } /* Live Location */
         .feature-grid a:nth-child(3) { background-color: #f9e8ca; } /* Track */
         .feature-grid a:nth-child(4) { background-color: #f3d7dc; } /* My Diary */
         .feature-grid a:nth-child(5) { background-color: #ede2d3; } /* Services */
-        .feature-grid a:nth-child(6) { background-color: #f5e3d3; } /* Vault */
 
         /* Icon Pill Badge */
         .feature-grid .block h3::before {
@@ -304,17 +303,10 @@
             background-repeat: no-repeat;
         }
 
-        /* Card 1 (Emergency): SOS Pill */
+        /* Card 1 (Siza-me tracker): Tracker Device Icon */
         .feature-grid a:nth-child(1) h3::before {
             background-color: #c06346;
-            content: "SOS";
-            color: #ffffff;
-            font-size: 0.75rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            letter-spacing: 0.5px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z'/%3E%3C/svg%3E");
         }
 
         /* Card 2 (Live Location): Location Pin Icon */
@@ -329,7 +321,7 @@
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b2a1a'%3E%3Cpath d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'/%3E%3C/svg%3E");
         }
 
-        /* Card 4 (My Diary / Support Services): Heart Icon */
+        /* Card 4 (My Diary): Heart Icon */
         .feature-grid a:nth-child(4) h3::before {
             background-color: #e5becc;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2342202a'%3E%3Cpath d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/%3E%3C/svg%3E");
@@ -339,12 +331,6 @@
         .feature-grid a:nth-child(5) h3::before {
             background-color: #dad0c0;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232b221a'%3E%3Cpath d='M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z'/%3E%3C/svg%3E");
-        }
-
-        /* Card 6 (Vault): Lock Icon */
-        .feature-grid a:nth-child(6) h3::before {
-            background-color: #e6d3c0;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%233b2618'%3E%3Cpath d='M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z'/%3E%3C/svg%3E");
         }
 
         /* Typography */
@@ -359,12 +345,11 @@
         }
 
         /* Dynamic Card Subtitles */
-        .feature-grid a:nth-child(1) h3::after { content: "Hold for 3 seconds to send an alert"; font-size: 0.75rem; font-weight: 400; color: #5a4942; margin-top: 4px; line-height: 1.25; }
+        .feature-grid a:nth-child(1) h3::after { content: "How to use and connect your tracker"; font-size: 0.75rem; font-weight: 400; color: #5a4942; margin-top: 4px; line-height: 1.25; }
         .feature-grid a:nth-child(2) h3::after { content: "Share your location with trusted contacts"; font-size: 0.75rem; font-weight: 400; color: #435041; margin-top: 4px; line-height: 1.25; }
         .feature-grid a:nth-child(3) h3::after { content: "Manage your safety circle"; font-size: 0.75rem; font-weight: 400; color: #574d39; margin-top: 4px; line-height: 1.25; }
-        .feature-grid a:nth-child(4) h3::after { content: "Find verified help near you"; font-size: 0.75rem; font-weight: 400; color: #543f45; margin-top: 4px; line-height: 1.25; }
+        .feature-grid a:nth-child(4) h3::after { content: "Record incidents, thoughts and notes"; font-size: 0.75rem; font-weight: 400; color: #543f45; margin-top: 4px; line-height: 1.25; }
         .feature-grid a:nth-child(5) h3::after { content: "Community resources and support"; font-size: 0.75rem; font-weight: 400; color: #52483d; margin-top: 4px; line-height: 1.25; }
-        .feature-grid a:nth-child(6) h3::after { content: "Secure documents & files"; font-size: 0.75rem; font-weight: 400; color: #544436; margin-top: 4px; line-height: 1.25; }
 
         .feature-grid .block span {
             position: absolute;
@@ -377,7 +362,7 @@
         }
 
         /* ==========================================================================
-           BOTTOM WIDE BANNER ("Documentation & Diary")
+           BOTTOM WIDE BANNER ("Shop")
            ========================================================================== */
 
         main > .wide-block {
@@ -420,14 +405,14 @@
             height: 42px;
             background-color: #ebd3b7;
             border-radius: 14px;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23382718'%3E%3Cpath d='M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23382718'%3E%3Cpath d='M18 6h-2c0-2.21-1.79-4-4-4S8 3.79 8 6H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6-2c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 16H6V8h2v2c0 .55.45 1 1 1s1-.45 1-1V8h4v2c0 .55.45 1 1 1s1-.45 1-1V8h2v12z'/%3E%3C/svg%3E");
             background-size: 22px;
             background-position: center;
             background-repeat: no-repeat;
         }
 
         main > .wide-block h3::after {
-            content: "Record incidents, thoughts and important information.";
+            content: "Shop our official merch and safety trackers.";
             font-size: 0.78rem;
             font-weight: 400;
             color: #594d3f;
@@ -601,11 +586,11 @@
 
         <!-- Main Dashboard Content Area -->
         <main>
-            <!-- 2x2 Feature Grid -->
+            <!-- Feature Grid -->
             <div class="feature-grid">
 
-                <a href="emergency.html" class="block">
-                    <h3>Emergency</h3>
+                <a href="tracker.html" class="block">
+                    <h3>Siza-me tracker</h3>
                     <span>&gt;</span>
                 </a>
 
@@ -629,16 +614,11 @@
                     <span>&gt;</span>
                 </a>
 
-                <a href="vault.html" class="block">
-                    <h3>Vault</h3>
-                    <span>&gt;</span>
-                </a>
-
             </div>
 
-            <!-- Bottom Wide Block ("Documentation & Diary") -->
-            <a href="my-diary.html" class="block wide-block">
-                <h3>Documentation &amp; Diary</h3>
+            <!-- Bottom Wide Block ("Shop") -->
+            <a href="shop.html" class="block wide-block">
+                <h3>Shop</h3>
                 <span>&gt;</span>
             </a>
         </main>
