@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Siza-Me | Shop & Support</title>
+
+    <script src="shop.js" defer></script>
+</head>
+
+<body>
+    <header>
+        <h1>Siza-Me</h1>
+
+        <nav aria-label="Main navigation">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="track.html">Track</a>
+            <a href="my-diary.html">My Diary</a>
+            <a href="shop.html" aria-current="page">Shop</a>
+            <a href="services.html">Free Support</a>
+        </nav>
+    </header>
+
+    <main>
+        <h1>Shop & Support</h1>
+        <p>My community. My Safety. My Voice.</p>
+
+        <div role="tablist" aria-label="Shop sections">
+            <button
+                type="button"
+                class="shop-tab"
+                data-tab="products-tab"
+                role="tab"
+                aria-selected="true">
+                Products
+            </button>
+
+            <button
+                type="button"
+                class="shop-tab"
+                data-tab="services-tab"
+                role="tab"
+                aria-selected="false">
+                Professional Support
+            </button>
+
+            <button
+                type="button"
+                class="shop-tab"
+                data-tab="cart-tab"
+                role="tab"
+                aria-selected="false">
+                My Cart (<span id="cart-count">0</span>)
+            </button>
+        </div>
+
+        <!-- PRODUCTS -->
+        <section id="products-tab" role="tabpanel">
+            <h2>Siza-Me Products</h2>
+
+            <p>
+                Explore Siza-Me merchandise and safety-tracking
+                accessories.
+            </p>
+
+            <label for="product-search">Search products</label>
+            <input
+                id="product-search"
+                type="search"
+                placeholder="Search products...">
+
+            <div id="product-list">
+                <p>Loading products...</p>
+            </div>
+        </section>
+
+        <!-- PROFESSIONAL SUPPORT -->
+        <section id="services-tab" role="tabpanel" hidden>
+            <h2>Professional Support Directory</h2>
+
+            <p>
+                Find professionals and organisations offering
+                psychological, legal, insurance and security services.
+                Contact providers directly to confirm fees and
+                arrange appointments.
+            </p>
+
+            <label for="service-category">Choose a category</label>
+
+            <select id="service-category">
+                <option value="all">All providers</option>
+                <option value="Psychologist">Psychologists</option>
+                <option value="Therapist">Therapists and Counsellors</option>
+                <option value="Private Security">Private Security Firms</option>
+                <option value="Insurance Company">Insurance Companies</option>
+                <option value="Lawyer">Lawyers</option>
+            </select>
+
+            <label for="service-search">Search providers</label>
+
+            <input
+                id="service-search"
+                type="search"
+                placeholder="Search by name, company or location...">
+
+            <div id="service-list">
+                <p>Loading providers...</p>
+            </div>
+
+            <aside>
+                <h3>Important Information</h3>
+
+                <p>
+                    These providers are listed for information purposes.
+                    They are not necessarily Siza-Me partners.
+                    Confirm professional registration, contact details,
+                    service availability, fees and opening hours directly
+                    with each provider before visiting.
+                </p>
+
+                <p>
+                    Information marked "Not confirmed" must be checked
+                    with the provider.
+                </p>
+            </aside>
+        </section>
+
+        <!-- SHOPPING CART -->
+        <section id="cart-tab" role="tabpanel" hidden>
+            <h2>My Cart</h2>
+
+            <div id="cart-items">
+                <p>Your cart is empty.</p>
+            </div>
+
+            <p>
+                <strong>Subtotal:</strong>
+                <span id="cart-subtotal">R0.00</span>
+            </p>
+
+            <p id="cart-message" aria-live="polite">
+                Add products to calculate your subtotal.
+            </p>
+
+            <button type="button" id="clear-cart">
+                Clear Cart
+            </button>
+
+            <button type="button" id="open-checkout" disabled>
+                Checkout unavailable
+            </button>
+
+            <div id="checkout-section" hidden>
+                <p id="checkout-result"></p>
+
+                <button type="button" id="cancel-checkout">
+                    Close
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <nav aria-label="Quick navigation">
+        <a href="dashboard.html">Home</a>
+        <a href="track.html">Track</a>
+        <a href="sos.html">SOS</a>
+        <a href="my-diary.html">Diary</a>
+        <a href="services.html">Services</a>
+    </nav>
+</body>
+</html>
