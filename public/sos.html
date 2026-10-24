@@ -3,28 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Siza-Me | Emergency SOS</title>
+    <!-- Google Font import: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================================================
+           GLOBAL RESET & BASE STYLES
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f6efe6; /* Warm cream background */
+            color: #2b3829;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+        /* ==========================================================================
+           EXACT BRAND CORNER DECORATIONS (Copied verbatim from dashboard.html)
+           ========================================================================== */
+        .corner-tl {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 130px;
+            height: 130px;
+            pointer-events: none;
+            z-index: 1; /* Rendered under everything */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 150'%3E%3Cpath fill='%23c06346' d='M0 0h90C40 0 0 40 0 90z'/%3E%3Cpath fill='none' stroke='%23fffaf5' stroke-width='3' stroke-linecap='round' d='M15 15l25 25M25 10l20 20M35 5l15 15'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+        .corner-br {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 180px;
+            height: 180px;
+            pointer-events: none;
+            z-index: 1; /* Rendered under everything */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath fill='%23c06346' d='M200 200H80c0-66 54-120 120-120z'/%3E%3Cpath fill='%232b3829' d='M200 200h-50c0-40 30-70 70-70z'/%3E%3Cpath fill='none' stroke='%23fffaf5' stroke-width='4' d='M140 200l60-60M120 200l80-80M160 200l40-40'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: bottom right;
+        }
+        /* Responsive Corner Scaling for Larger Displays */
+        @media (min-width: 1024px) {
+            .corner-tl { width: 180px; height: 180px; }
+            .corner-br { width: 240px; height: 240px; }
+        }
+        /* ==========================================================================
+           PAGE LAYOUT & RESPONSIVE WRAPPER
+           ========================================================================== */
+        .sos-page {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 520px;
+            min-height: 100vh;
+            padding: 24px 20px 40px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        @media (min-width: 769px) {
+            .sos-page {
+                max-width: 680px;
+                padding: 40px 32px 50px 32px;
+            }
+        }
+        /* Back to Dashboard Link Header */
+        .sos-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        .sos-header a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #2b3829;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background-color: #fffaf5;
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid #ebd9c5;
+            box-shadow: 0 2px 8px rgba(43, 56, 41, 0.04);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        .sos-header a::before {
+            content: "←";
+            font-size: 1.1rem;
+        }
+        .sos-header a:hover {
+            transform: translateX(-3px);
+            background-color: #f4ebd8;
+        }
+        .sos-main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            gap: 32px;
+            width: 100%;
+        }
+        /* ==========================================================================
+           CENTRAL SOS SCANNER & RIPPLE ANIMATION (TRIGGERED ON SEARCH)
+           ========================================================================== */
+        .sos-scanner-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+        }
+        .sos-scanner {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 28px;
+        }
+        @media (min-width: 769px) {
+            .sos-scanner {
+                width: 260px;
+                height: 260px;
+            }
+        }
+        /* Animated Ripple Rings: Hidden by default; displayed during search/active */
+        .sos-ripple {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(192, 99, 70, 0.45);
+            background-color: rgba(192, 99, 70, 0.08);
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+        /* Active/Searching State Animation Trigger */
+        .sos-scanner.searching .sos-ripple,
+        .sos-scanner.active .sos-ripple,
+        .sos-button.active ~ .sos-ripple {
+            animation: sosPulse 2.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        .sos-ripple-one { animation-delay: 0s; }
+        .sos-ripple-two { animation-delay: 0.9s; }
+        .sos-ripple-three { animation-delay: 1.8s; }
+        @keyframes sosPulse {
+            0% {
+                transform: scale(0.65);
+                opacity: 0.9;
+            }
+            70% {
+                transform: scale(1.5);
+                opacity: 0.15;
+            }
+            100% {
+                transform: scale(1.7);
+                opacity: 0;
+            }
+        }
+        /* Central SOS Trigger Button */
+        .sos-button {
+            position: relative;
+            z-index: 10;
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background-color: #c06346;
+            color: #ffffff;
+            border: 6px solid #fffaf5;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(192, 99, 70, 0.45);
+            transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @media (min-width: 769px) {
+            .sos-button {
+                width: 155px;
+                height: 155px;
+                font-size: 2.1rem;
+            }
+        }
+        .sos-button:hover {
+            background-color: #a85237;
+            transform: scale(1.05);
+            box-shadow: 0 14px 35px rgba(192, 99, 70, 0.55);
+        }
+        .sos-button:active {
+            transform: scale(0.96);
+        }
+        /* Active searching state styling for button */
+        .sos-button.active,
+        .sos-scanner.searching .sos-button {
+            background-color: #d9534f;
+            animation: buttonPulse 1.5s infinite alternate;
+        }
+        @keyframes buttonPulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.04); }
+        }
+        /* Status Paragraph Text Lines */
+        #sos-status {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1e261d;
+            margin-bottom: 6px;
+        }
+        #location-status {
+            font-size: 0.88rem;
+            font-weight: 400;
+            color: #6b5a4e;
+            max-width: 380px;
+            line-height: 1.45;
+        }
+        /* ==========================================================================
+           ALERT STATUS & DELIVERY CARD SECTION
+           ========================================================================== */
+        .sos-delivery-section {
+            width: 100%;
+            background-color: #fffaf5;
+            border-radius: 22px;
+            padding: 24px 28px;
+            border: 1px solid #ebd9c5;
+            box-shadow: 0 6px 20px rgba(43, 66, 42, 0.04);
+        }
+        .sos-delivery-section h2 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e261d;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sos-delivery-section h2::before {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #c06346;
+        }
+        #safe-circle-status {
+            font-size: 0.88rem;
+            color: #594d3f;
+            line-height: 1.45;
+        }
+        #delivery-status-list {
+            list-style: none;
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #delivery-status-list li {
+            font-size: 0.85rem;
+            color: #2b3829;
+            background-color: #f6efe6;
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1px solid #ebd9c5;
+        }
+    </style>
 </head>
-
 <body>
-
+    <!-- Protea Flower & Brand Corner Theme Graphics (Exact from dashboard.html) -->
+    <div class="corner-tl"></div>
+    <div class="corner-br"></div>
     <div class="sos-page">
-
         <header class="sos-header">
             <a href="dashboard.html">Back to Dashboard</a>
         </header>
-
         <main class="sos-main">
-
             <section class="sos-scanner-section">
-
                 <div class="sos-scanner" id="sos-scanner">
-
                     <div class="sos-ripple sos-ripple-one"></div>
                     <div class="sos-ripple sos-ripple-two"></div>
                     <div class="sos-ripple sos-ripple-three"></div>
-
                     <button
                         type="button"
                         id="sos-button"
@@ -33,39 +314,26 @@
                     >
                         SOS
                     </button>
-
                 </div>
-
                 <p id="sos-status" role="status" aria-live="polite">
                     SOS is inactive.
                 </p>
-
                 <p id="location-status" role="status" aria-live="polite">
                     Location has not been requested.
                 </p>
-
             </section>
-
             <section
                 class="sos-delivery-section"
                 aria-labelledby="delivery-heading"
             >
-
                 <h2 id="delivery-heading">Alert Status</h2>
-
                 <p id="safe-circle-status">
                     Your Safe Circle is not connected yet.
                 </p>
-
                 <ul id="delivery-status-list" aria-live="polite"></ul>
-
             </section>
-
         </main>
-
     </div>
-
     <script src="sos.js"></script>
-
 </body>
 </html>
