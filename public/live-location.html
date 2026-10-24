@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Siza-Me | Trusted Contacts</title>
+</head>
+
+<body>
+
+    <header>
+        <a href="dashboard.html">Back to Dashboard</a>
+
+        <h1>Trusted Contacts</h1>
+
+        <p>
+            Add the people you trust to receive your emergency alerts
+            and location updates.
+        </p>
+    </header>
+
+    <main>
+
+        <section id="add-contact-section">
+
+            <h2>Add a Trusted Contact</h2>
+
+            <p>
+                Choose someone you trust who can help you in an emergency.
+            </p>
+
+            <form id="contact-form">
+
+                <div>
+                    <label for="contact-name">Contact Name</label>
+                    <input
+                        type="text"
+                        id="contact-name"
+                        name="contactName"
+                        placeholder="Enter their full name"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="contact-phone">Phone Number</label>
+                    <input
+                        type="tel"
+                        id="contact-phone"
+                        name="contactPhone"
+                        placeholder="e.g. 0821234567"
+                        inputmode="tel"
+                        autocomplete="tel"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="contact-relationship">Relationship</label>
+
+                    <select
+                        id="contact-relationship"
+                        name="contactRelationship"
+                        required
+                    >
+                        <option value="">Select relationship</option>
+                        <option value="Family">Family</option>
+                        <option value="Friend">Friend</option>
+                        <option value="Partner">Partner</option>
+                        <option value="Colleague">Colleague</option>
+                        <option value="Neighbour">Neighbour</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="add-contact-button">
+                    Add Contact
+                </button>
+
+                <p id="contact-form-status" role="status" aria-live="polite"></p>
+
+            </form>
+
+        </section>
+
+        <section id="trusted-contacts-section">
+
+            <h2>My Trusted Contacts</h2>
+
+            <p>
+                These are the people you have chosen for your Safe Circle.
+            </p>
+
+            <p id="contacts-empty-message">
+                You have not added any trusted contacts yet.
+            </p>
+
+            <div id="trusted-contacts-list"></div>
+
+        </section>
+
+        <section id="location-sharing-section">
+
+            <h2>Location Sharing</h2>
+
+            <p>
+                Your location can help your trusted contacts find you
+                when you need assistance.
+            </p>
+
+            <p id="location-sharing-status">
+                Location sharing is not active.
+            </p>
+
+        </section>
+
+        <section id="emergency-alerts-section">
+
+            <h2>Emergency Alerts</h2>
+
+            <p>
+                When the SOS feature is connected to the backend,
+                your trusted contacts can receive emergency alerts
+                and available location information.
+            </p>
+
+            <p id="emergency-alert-status">
+                Emergency messaging is not connected yet.
+            </p>
+
+            <p id="safe-circle-status">
+                Safe Circle is waiting for your trusted contacts.
+            </p>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <a href="dashboard.html">Home</a>
+        <a href="track.html">Track</a>
+        <a href="sos.html">SOS</a>
+        <a href="my-diary.html">My Diary</a>
+        <a href="services.html">Services</a>
+    </footer>
+
+    <!-- Connect the trusted contacts JavaScript -->
+    <script type="module" src="live-location.js"></script>
+
+</body>
+
+</html>
