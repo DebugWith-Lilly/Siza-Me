@@ -1,3 +1,4 @@
+
 import { auth } from "./firebase.js";
 
 import {
@@ -14,6 +15,13 @@ const forgotPasswordLink = document.querySelector(".forgot-password");
 
 console.log("Siza-Me login script loaded!");
 
+// Added by: Ntombi
+// Lock login for 15 minutes after 3 failed attempts.
+const MAX_ATTEMPTS = 3;
+const LOCKOUT_TIME = 15 * 60 * 1000;
+const ATTEMPTS_KEY = "sizame_failed_login_attempts";
+const LOCKOUT_KEY = "sizame_login_lockout_until";
+
 if (!loginForm || !emailInput || !passwordInput) {
     console.error("Login form or input fields could not be found.");
 } else {
@@ -29,9 +37,80 @@ if (!loginForm || !emailInput || !passwordInput) {
         loginForm.appendChild(message);
     }
 
+    // Added by: Ntombi
+    // Get the login button and manage the lockout.
+    const loginButton = loginForm.querySelector('button[type="submit"]');
+
+    function getFailedAttempts() {
+        return Number(sessionStorage.getItem(ATTEMPTS_KEY) || 0);
+    }
+
+    function getLockoutUntil() {
+        return Number(sessionStorage.getItem(LOCKOUT_KEY) || 0);
+    }
+
+    function updateLockout() {
+        const remaining = getLockoutUntil() - Date.now();
+
+        if (remaining <= 0) {
+            sessionStorage.removeItem(ATTEMPTS_KEY);
+            sessionStorage.removeItem(LOCKOUT_KEY);
+
+            emailInput.disabled = false;
+            passwordInput.disabled = false;
+            if (loginButton) loginButton.disabled = false;
+
+            message.textContent = "";
+            return;
+        }
+
+        emailInput.disabled = true;
+        passwordInput.disabled = true;
+        if (loginButton) loginButton.disabled = true;
+
+        message.textContent =
+            `Login is temporarily locked after 3 failed attempts. ` +
+            `Please try again in ${Math.ceil(remaining / 60000)} minute(s).`;
+
+        window.setTimeout(updateLockout, 1000);
+    }
+
+    function recordFailedAttempt() {
+        const attempts = getFailedAttempts() + 1;
+        sessionStorage.setItem(ATTEMPTS_KEY, String(attempts));
+
+        if (attempts >= MAX_ATTEMPTS) {
+            sessionStorage.setItem(
+                LOCKOUT_KEY,
+                String(Date.now() + LOCKOUT_TIME)
+            );
+            updateLockout();
+        } else {
+            message.textContent =
+                `Incorrect email or password. ` +
+                `${MAX_ATTEMPTS - attempts} attempt(s) remaining.`;
+        }
+    }
+
+    // Added by: Ntombi
+    // Restore an active lockout after refreshing the page.
+    if (getLockoutUntil() > Date.now()) {
+        updateLockout();
+    } else {
+        sessionStorage.removeItem(ATTEMPTS_KEY);
+        sessionStorage.removeItem(LOCKOUT_KEY);
+    }
+
     // Login
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
+
+        // Added by: Ntombi
+        // Stop login attempts during the lockout.
+        if (getLockoutUntil() > Date.now()) {
+            updateLockout();
+            return;
+        }
 
         const email = emailInput.value.trim();
         const password = passwordInput.value;
@@ -50,6 +129,11 @@ if (!loginForm || !emailInput || !passwordInput) {
                 email,
                 password
             );
+
+            // Added by: Ntombi
+            // Reset the counter after successful authentication.
+            sessionStorage.removeItem(ATTEMPTS_KEY);
+            sessionStorage.removeItem(LOCKOUT_KEY);
 
             const user = credential.user;
 
@@ -71,7 +155,10 @@ if (!loginForm || !emailInput || !passwordInput) {
                 error.code === "auth/user-not-found" ||
                 error.code === "auth/wrong-password"
             ) {
-                message.textContent = "Incorrect email or password.";
+                // Added by: Ntombi
+                // Count failed Firebase login attempts.
+                recordFailedAttempt();
+
             } else if (error.code === "auth/invalid-email") {
                 message.textContent = "Please enter a valid email address.";
             } else if (error.code === "auth/too-many-requests") {
