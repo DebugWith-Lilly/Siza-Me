@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siza-Me | My Diary</title>
+</head>
+<body>
+
+    <h1>My Diary</h1>
+
+    <nav>
+        <button type="button" data-tab="diary">My Diary</button>
+        <button type="button" data-tab="attachments">Attachments</button>
+        <button type="button" data-tab="reports">Reports</button>
+    </nav>
+
+    <main>
+        <section id="diary-section">
+            <h2 id="editor-heading">New Diary Entry</h2>
+
+            <p id="diary-status" role="status"></p>
+
+            <form id="diary-form">
+                <input type="hidden" id="entry-id">
+
+                <label for="entry-title">Title</label>
+                <input
+                    type="text"
+                    id="entry-title"
+                    placeholder="Give your entry a title"
+                    required
+                >
+
+                <br><br>
+
+                <label for="entry-date">Date</label>
+                <input type="date" id="entry-date" required>
+
+                <br><br>
+
+                <label for="entry-text">Notes</label>
+                <br>
+                <textarea
+                    id="entry-text"
+                    rows="10"
+                    placeholder="Write your thoughts or describe what happened..."
+                    required
+                ></textarea>
+
+                <br><br>
+
+                <label for="image-upload">Attachments</label>
+                <input
+                    type="file"
+                    id="image-upload"
+                    accept="image/*"
+                    multiple
+                >
+
+                <div id="preview-grid"></div>
+
+                <br>
+
+                <button type="submit" id="save-entry">Save Entry</button>
+                <button type="button" id="clear-entry">Clear</button>
+                <button type="button" id="report-entry">Request Help</button>
+            </form>
+
+            <hr>
+
+            <h2>My Saved Entries</h2>
+            <div id="saved-entries"></div>
+        </section>
+
+        <section id="attachments-section" class="hidden">
+            <h2>My Attachments</h2>
+            <p id="attachments-status" role="status"></p>
+            <div id="attachments-grid"></div>
+        </section>
+
+        <section id="reports-section" class="hidden">
+            <h2>My Reports</h2>
+
+            <p id="reports-status" role="status"></p>
+
+            <button type="button" id="download-all">
+                Download All Entries as PDF
+            </button>
+
+            <div id="saved-reports"></div>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="my-diary.js"></script>
+
+</body>
+</html>
