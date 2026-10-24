@@ -1,100 +1,608 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Siza-Me | My Diary</title>
+    <!-- Google Font import: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* ==========================================================================
+           GLOBAL RESET & BASE LAYOUT STYLES
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f6efe6; /* Warm cream background */
+            color: #2b3829;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ==========================================================================
+           EXACT BRAND CORNER DECORATIONS (Rendered strictly behind all UI content)
+           ========================================================================== */
+        .corner-tl {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 130px;
+            height: 130px;
+            pointer-events: none;
+            z-index: 1; /* Rendered under everything */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 150'%3E%3Cpath fill='%23c06346' d='M0 0h90C40 0 0 40 0 90z'/%3E%3Cpath fill='none' stroke='%23fffaf5' stroke-width='3' stroke-linecap='round' d='M15 15l25 25M25 10l20 20M35 5l15 15'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+        .corner-br {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 180px;
+            height: 180px;
+            pointer-events: none;
+            z-index: 1; /* Rendered under everything */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Cpath fill='%23c06346' d='M200 200H80c0-66 54-120 120-120z'/%3E%3Cpath fill='%232b3829' d='M200 200h-50c0-40 30-70 70-70z'/%3E%3Cpath fill='none' stroke='%23fffaf5' stroke-width='4' d='M140 200l60-60M120 200l80-80M160 200l40-40'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: bottom right;
+        }
+
+        /* Responsive Corner Scaling for Larger Displays */
+        @media (min-width: 1024px) {
+            .corner-tl { width: 180px; height: 180px; }
+            .corner-br { width: 240px; height: 240px; }
+        }
+
+        /* ==========================================================================
+           PAGE WRAPPER & CONTAINER STYLES
+           ========================================================================== */
+        .page-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 520px;
+            min-height: 100vh;
+            padding: 24px 20px 160px 20px; /* Generous bottom padding to clear dock */
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 769px) {
+            .page-container {
+                max-width: 760px;
+                padding: 36px 32px 180px 32px;
+            }
+        }
+
+        /* ==========================================================================
+           HEADER STYLES
+           ========================================================================== */
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1e261d;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        @media (min-width: 769px) {
+            h1 {
+                font-size: 1.9rem;
+            }
+        }
+
+        /* ==========================================================================
+           NAVIGATION TABS STYLES
+           ========================================================================== */
+        nav {
+            display: flex;
+            gap: 8px;
+            background-color: #f6efe6;
+            padding: 4px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            border: 1px solid #ebd9c5;
+        }
+
+        nav button {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            background-color: transparent;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #594d3f;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        nav button:hover {
+            color: #2b3829;
+            background-color: #f4ebd8;
+        }
+
+        /* Active tab pill highlighting state managed by JS or active class */
+        nav button[aria-selected="true"],
+        nav button.active {
+            background-color: #c06346 !important;
+            color: #ffffff !important;
+            border-color: #c06346 !important;
+            box-shadow: 0 4px 12px rgba(192, 99, 70, 0.3);
+        }
+
+        /* ==========================================================================
+           MAIN CONTENT CARD & FORM STYLES
+           ========================================================================== */
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        section {
+            background-color: #fffaf5;
+            border-radius: 22px;
+            padding: 24px;
+            border: 1px solid #ebd9c5;
+            box-shadow: 0 4px 15px rgba(43, 66, 42, 0.03);
+        }
+
+        section h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1e261d;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        section h2::before {
+            content: "";
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #c06346;
+            flex-shrink: 0;
+        }
+
+        #diary-form {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #2b3829;
+            margin-bottom: -4px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        textarea,
+        input[type="file"] {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1px solid #ebd9c5;
+            background-color: #f6efe6;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            color: #2b3829;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        textarea:focus {
+            border-color: #c06346;
+            box-shadow: 0 0 0 3px rgba(192, 99, 70, 0.15);
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        /* Hide raw spacing breaks in favor of CSS gap */
+        br {
+            display: none;
+        }
+
+        /* Smaller Image Upload Container & Preview Grid */
+        input[type="file"] {
+            padding: 10px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        #preview-grid,
+        #attachments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        /* Style generated thumbnails inside preview / attachment grids to be smaller */
+        #preview-grid img,
+        #attachments-grid img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #ebd9c5;
+            background-color: #f6efe6;
+        }
+
+        /* Action Buttons */
+        #diary-form button,
+        #reports-section button {
+            padding: 12px 20px;
+            border-radius: 14px;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(43, 56, 41, 0.04);
+        }
+
+        #save-entry {
+            background-color: #c06346;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(192, 99, 70, 0.3);
+        }
+
+        #save-entry:hover {
+            background-color: #a85237;
+            transform: translateY(-1px);
+        }
+
+        #clear-entry {
+            background-color: #f6efe6;
+            color: #594d3f;
+            border: 1px solid #ebd9c5 !important;
+        }
+
+        #clear-entry:hover {
+            background-color: #f4ebd8;
+            color: #2b3829;
+        }
+
+        #report-entry {
+            background-color: #2b3829;
+            color: #ffffff;
+        }
+
+        #report-entry:hover {
+            background-color: #1e261d;
+        }
+
+        #download-all {
+            background-color: #2b3829;
+            color: #ffffff;
+            width: 100%;
+            margin-bottom: 14px;
+        }
+
+        #download-all:hover {
+            background-color: #1e261d;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #ebd9c5;
+            margin: 20px 0;
+        }
+
+        /* Status & Feedbacks */
+        #diary-status,
+        #attachments-status,
+        #reports-status {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #c06346;
+        }
+
+        /* Utility class generated by JS */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Saved entries list view styling */
+        #saved-entries,
+        #saved-reports {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        /* ==========================================================================
+           FLOATING NAVIGATION DOCK STYLES (z-index 1000)
+           ========================================================================== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 40px);
+            max-width: 460px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #fffaf5;
+            border-radius: 40px;
+            padding: 10px 16px;
+            box-shadow: 0 10px 35px rgba(43, 66, 42, 0.15);
+            z-index: 1000; /* Placed above everything */
+            border: 1px solid #ebd9c5;
+        }
+
+        /* Larger dock scaling on desktop/laptop */
+        @media (min-width: 769px) {
+            .bottom-nav {
+                max-width: 580px;
+                padding: 14px 24px;
+                bottom: 32px;
+            }
+            .bottom-nav a {
+                font-size: 0.85rem !important;
+            }
+            .bottom-nav a div:first-child {
+                width: 28px !important;
+                height: 28px !important;
+            }
+            .sos-button {
+                width: 72px !important;
+                height: 72px !important;
+                top: -40px !important;
+                font-size: 1.1rem !important;
+            }
+        }
+
+        .bottom-nav a {
+            text-decoration: none;
+            color: #7a736a;
+            text-align: center;
+            flex: 1;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            transition: color 0.2s ease;
+        }
+
+        /* SVG icon replacement container */
+        .bottom-nav a div:first-child {
+            font-size: 0;
+            width: 24px;
+            height: 24px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.55;
+            transition: opacity 0.2s ease;
+        }
+
+        /* Active Page State (Diary selected) */
+        .bottom-nav a[href="my-diary.html"] {
+            color: #2b422a;
+            font-weight: 700;
+        }
+
+        .bottom-nav a[href="my-diary.html"] div:first-child {
+            opacity: 1;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232b422a'%3E%3Cpath d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z'/%3E%3C/svg%3E") !important;
+        }
+
+        /* Nav Icon 1: Home */
+        .bottom-nav a[href="dashboard.html"] div:first-child {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232b422a'%3E%3Cpath d='M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z'/%3E%3C/svg%3E");
+        }
+
+        /* Nav Icon 2: Track / Map */
+        .bottom-nav a[href="track.html"] div:first-child {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232b422a'%3E%3Cpath d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'/%3E%3C/svg%3E");
+        }
+
+        /* Nav Icon 5: Services */
+        .bottom-nav a[href="services.html"] div:first-child {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%232b422a'%3E%3Cpath d='M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z'/%3E%3C/svg%3E");
+        }
+
+        /* Floating Central SOS Button container and styling */
+        .sos-nav-item {
+            position: relative;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .sos-button {
+            position: absolute;
+            top: -34px;
+            background-color: #c06346;
+            color: #ffffff !important; /* Forced pure white text */
+            border: 4px solid #fffaf5;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            box-shadow: 0 6px 20px rgba(192, 99, 70, 0.45);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .sos-button:hover {
+            background-color: #a85237;
+            transform: scale(1.06);
+        }
+    </style>
 </head>
 <body>
 
-    <h1>My Diary</h1>
+    <!-- Protea Flower & Brand Corner Theme Graphics -->
+    <div class="corner-tl"></div>
+    <div class="corner-br"></div>
 
-    <nav>
-        <button type="button" data-tab="diary">My Diary</button>
-        <button type="button" data-tab="attachments">Attachments</button>
-        <button type="button" data-tab="reports">Reports</button>
+    <div class="page-container">
+
+        <h1>My Diary</h1>
+
+        <nav>
+            <button type="button" data-tab="diary" class="active">My Diary</button>
+            <button type="button" data-tab="attachments">Attachments</button>
+            <button type="button" data-tab="reports">Reports</button>
+        </nav>
+
+        <main>
+            <section id="diary-section">
+                <h2 id="editor-heading">New Diary Entry</h2>
+
+                <p id="diary-status" role="status"></p>
+
+                <form id="diary-form">
+                    <input type="hidden" id="entry-id">
+
+                    <label for="entry-title">Title</label>
+                    <input
+                        type="text"
+                        id="entry-title"
+                        placeholder="Give your entry a title"
+                        required
+                    >
+
+                    <br><br>
+
+                    <label for="entry-date">Date</label>
+                    <input type="date" id="entry-date" required>
+
+                    <br><br>
+
+                    <label for="entry-text">Notes</label>
+                    <br>
+                    <textarea
+                        id="entry-text"
+                        rows="10"
+                        placeholder="Write your thoughts or describe what happened..."
+                        required
+                    ></textarea>
+
+                    <br><br>
+
+                    <label for="image-upload">Attachments</label>
+                    <input
+                        type="file"
+                        id="image-upload"
+                        accept="image/*"
+                        multiple
+                    >
+
+                    <div id="preview-grid"></div>
+
+                    <br>
+
+                    <button type="submit" id="save-entry">Save Entry</button>
+                    <button type="button" id="clear-entry">Clear</button>
+                    <button type="button" id="report-entry">Request Help</button>
+                </form>
+
+                <hr>
+
+                <h2>My Saved Entries</h2>
+                <div id="saved-entries"></div>
+            </section>
+
+            <section id="attachments-section" class="hidden">
+                <h2>My Attachments</h2>
+                <p id="attachments-status" role="status"></p>
+                <div id="attachments-grid"></div>
+            </section>
+
+            <section id="reports-section" class="hidden">
+                <h2>My Reports</h2>
+
+                <p id="reports-status" role="status"></p>
+
+                <button type="button" id="download-all">
+                    Download All Entries as PDF
+                </button>
+
+                <div id="saved-reports"></div>
+            </section>
+        </main>
+
+    </div>
+
+    <!-- Floating Bottom Navigation Dock -->
+    <nav class="bottom-nav">
+        <a href="dashboard.html">
+            <div>⌂</div>
+            <div>Home</div>
+        </a>
+
+        <a href="track.html">
+            <div>○</div>
+            <div>Track</div>
+        </a>
+
+        <div class="sos-nav-item">
+            <a href="sos.html" class="sos-button">SOS</a>
+        </div>
+
+        <a href="my-diary.html">
+            <div>▤</div>
+            <div>Diary</div>
+        </a>
+
+        <a href="services.html">
+            <div>▦</div>
+            <div>Services</div>
+        </a>
     </nav>
-
-    <main>
-        <section id="diary-section">
-            <h2 id="editor-heading">New Diary Entry</h2>
-
-            <p id="diary-status" role="status"></p>
-
-            <form id="diary-form">
-                <input type="hidden" id="entry-id">
-
-                <label for="entry-title">Title</label>
-                <input
-                    type="text"
-                    id="entry-title"
-                    placeholder="Give your entry a title"
-                    required
-                >
-
-                <br><br>
-
-                <label for="entry-date">Date</label>
-                <input type="date" id="entry-date" required>
-
-                <br><br>
-
-                <label for="entry-text">Notes</label>
-                <br>
-                <textarea
-                    id="entry-text"
-                    rows="10"
-                    placeholder="Write your thoughts or describe what happened..."
-                    required
-                ></textarea>
-
-                <br><br>
-
-                <label for="image-upload">Attachments</label>
-                <input
-                    type="file"
-                    id="image-upload"
-                    accept="image/*"
-                    multiple
-                >
-
-                <div id="preview-grid"></div>
-
-                <br>
-
-                <button type="submit" id="save-entry">Save Entry</button>
-                <button type="button" id="clear-entry">Clear</button>
-                <button type="button" id="report-entry">Request Help</button>
-            </form>
-
-            <hr>
-
-            <h2>My Saved Entries</h2>
-            <div id="saved-entries"></div>
-        </section>
-
-        <section id="attachments-section" class="hidden">
-            <h2>My Attachments</h2>
-            <p id="attachments-status" role="status"></p>
-            <div id="attachments-grid"></div>
-        </section>
-
-        <section id="reports-section" class="hidden">
-            <h2>My Reports</h2>
-
-            <p id="reports-status" role="status"></p>
-
-            <button type="button" id="download-all">
-                Download All Entries as PDF
-            </button>
-
-            <div id="saved-reports"></div>
-        </section>
-    </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="my-diary.js"></script>
+    <script>
+        // Ensure top pill tabs dynamically shift the .active highlight class on click
+        document.addEventListener("DOMContentLoaded", () => {
+            const tabButtons = document.querySelectorAll("nav button[data-tab]");
+            tabButtons.forEach(button => {
+                button.addEventListener("click", () => {
+                    tabButtons.forEach(btn => btn.classList.remove("active"));
+                    button.classList.add("active");
+                });
+            });
+        });
+    </script>
 
 </body>
 </html>
