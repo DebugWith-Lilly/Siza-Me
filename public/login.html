@@ -254,6 +254,99 @@
             height: 200px;
         }
 
+        /* Phone verification popup */
+
+        .phone-modal[hidden] {
+            display: none;
+        }
+
+        .phone-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.55);
+        }
+
+        .phone-modal-card {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            border-radius: 18px;
+            background: #fffaf5;
+            color: #262626;
+        }
+
+        .phone-modal-card h2 {
+            margin: 10px 0;
+            color: #2b422a;
+        }
+
+        .phone-modal-card label {
+            display: block;
+            margin: 15px 0 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .phone-modal-card input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d4c5b9;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .modal-eyebrow {
+            color: #c26638;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .modal-description {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            border: none;
+            background: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        .modal-cancel {
+            width: 100%;
+            margin-top: 12px;
+            padding: 12px;
+            border: 1px solid #d4c5b9;
+            border-radius: 50px;
+            background: transparent;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        #phone-modal-message {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            overflow-wrap: anywhere;
+        }
+
+        #recaptcha-container {
+            margin-top: 12px;
+            overflow-x: auto;
+        }
+
         @media (max-width: 480px) {
             .phone {
                 padding: 35px 12px;
@@ -361,6 +454,49 @@
         </form>
     </main>
 
+    <!-- Phone verification popup -->
+    <div id="phone-modal" class="phone-modal" hidden>
+        <div class="phone-modal-card"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="phone-modal-title">
+
+            <button type="button"
+                    id="close-phone-modal"
+                    class="modal-close"
+                    aria-label="Close">×</button>
+
+            <p class="modal-eyebrow">SIZA-ME SECURITY</p>
+
+            <h2 id="phone-modal-title">Secure Your Account</h2>
+
+            <p class="modal-description">
+                Add your phone number to protect your account with
+                two-step verification.
+            </p>
+
+            <label for="mfa-phone">Phone number</label>
+
+            <input
+                type="tel"
+                id="mfa-phone"
+                placeholder="+27 82 123 4567"
+                autocomplete="tel">
+
+            <div id="recaptcha-container"></div>
+
+            <p id="phone-modal-message" role="status" aria-live="polite"></p>
+
+            <button type="button" id="send-phone-code" class="primary-btn">
+                Send Verification Code
+            </button>
+
+            <button type="button" id="cancel-phone-modal" class="modal-cancel">
+                Cancel
+            </button>
+        </div>
+    </div>
+
     <!-- Bottom-left Protea decoration -->
     <div class="bottom-left-decor" aria-hidden="true">
         <svg width="100%" height="100%" viewBox="0 0 175 250" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -464,6 +600,26 @@
     emailInput.addEventListener("focus", function () {
         maskedDisplay.hidden = true;
         emailInput.classList.remove("masked-email");
+    });
+
+    // Phone popup controls.
+    // Firebase SMS verification must be implemented in script.js separately.
+
+    const phoneModal = document.getElementById("phone-modal");
+    const closePhoneModal = document.getElementById("close-phone-modal");
+    const cancelPhoneModal = document.getElementById("cancel-phone-modal");
+
+    function closeModal() {
+        phoneModal.hidden = true;
+    }
+
+    closePhoneModal.addEventListener("click", closeModal);
+    cancelPhoneModal.addEventListener("click", closeModal);
+
+    phoneModal.addEventListener("click", function (event) {
+        if (event.target === phoneModal) {
+            closeModal();
+        }
     });
 </script>
 
