@@ -1,4 +1,3 @@
-
 import { auth, db } from "./firebase.js";
 
 import {
@@ -15,7 +14,6 @@ import {
     EmailAuthProvider,
     reauthenticateWithCredential
 } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
-
 
 // DEMO ONLY: The PIN is stored in this browser and is not production security.
 
@@ -37,7 +35,7 @@ let currentUser = null;
 let authReady = false;
 let contactsUnlocked = false;
 
-// — reliably hide/show sections even when CSS overrides [hidden].
+// Reliably hide/show sections even when CSS overrides [hidden].
 function setSectionVisible(element, visible) {
     if (!element) return;
 
@@ -50,7 +48,7 @@ function setSectionVisible(element, visible) {
     }
 }
 
-// verification screen styling.
+// Verification screen styling.
 const verificationStyle = document.createElement("style");
 
 verificationStyle.textContent = `
@@ -122,7 +120,7 @@ verificationStyle.textContent = `
 
 document.head.appendChild(verificationStyle);
 
-//create the verification screen.
+// Create the verification screen.
 const verificationGate = document.createElement("section");
 verificationGate.id = "trusted-verification-gate";
 
@@ -189,13 +187,15 @@ verificationGate.innerHTML = `
             Verify and Continue
         </button>
 
-        <p id="trusted-verification-status"
-           role="status"
-           aria-live="polite"></p>
+        <p
+            id="trusted-verification-status"
+            role="status"
+            aria-live="polite"
+        ></p>
     </form>
 `;
 
-//  use main when available, otherwise use the page body.
+// Use main when available, otherwise use the page body.
 const mainElement = document.querySelector("main") || document.body;
 mainElement.prepend(verificationGate);
 
@@ -247,7 +247,7 @@ function contactsCollection() {
     return collection(db, "users", currentUser.uid, "trustedContacts");
 }
 
-//hash the demo PIN before browser storage.
+// hash the demo PIN before browser storage.
 async function hashPin(pin) {
     const bytes = new TextEncoder().encode(pin);
     const digest = await crypto.subtle.digest("SHA-256", bytes);
@@ -284,7 +284,7 @@ function showVerificationGate() {
     verificationStatus.textContent = "";
 }
 
-//verify account password and PIN.
+// Added by: Thumbi — verify account password and PIN.
 verificationForm.addEventListener("submit", async event => {
     event.preventDefault();
 
@@ -327,12 +327,16 @@ verificationForm.addEventListener("submit", async event => {
                 return;
             }
 
-            localStorage.setItem(pinStorageKey(), await hashPin(pin));
+            localStorage.setItem(
+                pinStorageKey(),
+                await hashPin(pin)
+            );
         } else {
             const enteredPin = pinEntryInput.value;
 
             if (!/^[0-9]{6}$/.test(enteredPin)) {
-                verificationStatus.textContent = "Enter your six-digit PIN.";
+                verificationStatus.textContent =
+                    "Enter your six-digit PIN.";
                 return;
             }
 
@@ -346,6 +350,7 @@ verificationForm.addEventListener("submit", async event => {
         }
 
         contactsUnlocked = true;
+
         setSectionVisible(verificationGate, false);
         setSectionVisible(addContactSection, true);
         setSectionVisible(trustedContactsSection, true);
@@ -409,6 +414,7 @@ async function loadContacts() {
 
         snapshot.forEach(contactDocument => {
             const contact = contactDocument.data();
+
             const card = document.createElement("div");
 
             const name = document.createElement("h3");
@@ -476,6 +482,14 @@ contactForm.addEventListener("submit", async event => {
         return;
     }
 
+    // validate the phone number before saving.
+    if (!/^[0-9]{10}$/.test(phone)) {
+        formStatus.textContent =
+            "Phone number must contain exactly 10 digits.";
+        contactPhone.focus();
+        return;
+    }
+
     addButton.disabled = true;
     formStatus.textContent = "Saving trusted contact...";
 
@@ -500,6 +514,7 @@ contactForm.addEventListener("submit", async event => {
         });
 
         contactForm.reset();
+
         formStatus.textContent = "Trusted contact saved successfully.";
 
         await loadContacts();
@@ -509,6 +524,7 @@ contactForm.addEventListener("submit", async event => {
 
         formStatus.textContent =
             "Contact could not be saved. Check the Console for the error.";
+
     } finally {
         addButton.disabled = false;
     }
@@ -587,4 +603,3 @@ onAuthStateChanged(auth, user => {
 
     showVerificationGate();
 });
-
