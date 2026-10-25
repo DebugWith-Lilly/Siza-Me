@@ -142,7 +142,7 @@ if (!loginForm || !emailInput || !passwordInput) {
 
             const userEmail = encodeURIComponent(user.email);
 
-            message.textContent = "Login successful. Opening OTP page...";
+            message.textContent = "Login successful.";
 
             window.location.href = `dashboard.html?email=${userEmail}`;
 
