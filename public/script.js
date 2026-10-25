@@ -37,7 +37,6 @@ if (!loginForm || !emailInput || !passwordInput) {
         loginForm.appendChild(message);
     }
 
-    
     // Get the login button and manage the lockout.
     const loginButton = loginForm.querySelector('button[type="submit"]');
 
