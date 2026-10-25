@@ -144,7 +144,7 @@ if (!loginForm || !emailInput || !passwordInput) {
 
             message.textContent = "Login successful. Opening OTP page...";
 
-            window.location.href = `otp.html?email=${userEmail}`;
+            window.location.href = `dashboard.html?email=${userEmail}`;
 
         } catch (error) {
             console.error("Login error:", error.code, error.message);
