@@ -28,6 +28,10 @@
             position: relative;
             overflow-x: hidden;
         }
+        button {
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+        }
         /* ==========================================================================
            EXACT BRAND CORNER DECORATIONS (Rendered strictly behind all UI content)
            ========================================================================== */
@@ -242,6 +246,30 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+        }
+
+        /* Styled Buttons for Dynamically Generated Remove & Action Items */
+        #trusted-contacts-list button,
+        .remove-contact-btn {
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 1px solid #ebd9c5;
+            background-color: #f6efe6;
+            color: #594d3f;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(43, 56, 41, 0.03);
+            margin-top: 8px;
+        }
+        #trusted-contacts-list button:hover,
+        .remove-contact-btn:hover {
+            background-color: #c06346;
+            color: #ffffff;
+            border-color: #c06346;
+            transform: translateY(-1px);
         }
 
         /* Responsive Desktop Form Alignment */
