@@ -15,7 +15,7 @@ const forgotPasswordLink = document.querySelector(".forgot-password");
 
 console.log("Siza-Me login script loaded!");
 
-// Added by: Ntombi
+
 // Lock login for 15 minutes after 3 failed attempts.
 const MAX_ATTEMPTS = 3;
 const LOCKOUT_TIME = 15 * 60 * 1000;
@@ -37,7 +37,7 @@ if (!loginForm || !emailInput || !passwordInput) {
         loginForm.appendChild(message);
     }
 
-    // Added by: Ntombi
+    
     // Get the login button and manage the lockout.
     const loginButton = loginForm.querySelector('button[type="submit"]');
 
@@ -92,7 +92,7 @@ if (!loginForm || !emailInput || !passwordInput) {
         }
     }
 
-    // Added by: Ntombi
+    
     // Restore an active lockout after refreshing the page.
     if (getLockoutUntil() > Date.now()) {
         updateLockout();
@@ -105,7 +105,7 @@ if (!loginForm || !emailInput || !passwordInput) {
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        // Added by: Ntombi
+        
         // Stop login attempts during the lockout.
         if (getLockoutUntil() > Date.now()) {
             updateLockout();
@@ -130,7 +130,7 @@ if (!loginForm || !emailInput || !passwordInput) {
                 password
             );
 
-            // Added by: Ntombi
+            
             // Reset the counter after successful authentication.
             sessionStorage.removeItem(ATTEMPTS_KEY);
             sessionStorage.removeItem(LOCKOUT_KEY);
@@ -155,7 +155,7 @@ if (!loginForm || !emailInput || !passwordInput) {
                 error.code === "auth/user-not-found" ||
                 error.code === "auth/wrong-password"
             ) {
-                // Added by: Ntombi
+                
                 // Count failed Firebase login attempts.
                 recordFailedAttempt();
 
