@@ -601,26 +601,6 @@
         maskedDisplay.hidden = true;
         emailInput.classList.remove("masked-email");
     });
-
-    // Phone popup controls.
-    // Firebase SMS verification must be implemented in script.js separately.
-
-    const phoneModal = document.getElementById("phone-modal");
-    const closePhoneModal = document.getElementById("close-phone-modal");
-    const cancelPhoneModal = document.getElementById("cancel-phone-modal");
-
-    function closeModal() {
-        phoneModal.hidden = true;
-    }
-
-    closePhoneModal.addEventListener("click", closeModal);
-    cancelPhoneModal.addEventListener("click", closeModal);
-
-    phoneModal.addEventListener("click", function (event) {
-        if (event.target === phoneModal) {
-            closeModal();
-        }
-    });
 </script>
 
 </body>
