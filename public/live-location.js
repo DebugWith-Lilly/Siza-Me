@@ -229,7 +229,7 @@ const verificationButton =
 const verificationInstructions =
     document.getElementById("trusted-verification-instructions");
 
-// Added by: Ntombi — lock protected content immediately.
+//lock protected content immediately.
 setSectionVisible(verificationGate, false);
 setSectionVisible(contactForm, false);
 setSectionVisible(addContactSection, false);
@@ -247,7 +247,7 @@ function contactsCollection() {
     return collection(db, "users", currentUser.uid, "trustedContacts");
 }
 
-// Added by: Ntombi — hash the demo PIN before browser storage.
+//hash the demo PIN before browser storage.
 async function hashPin(pin) {
     const bytes = new TextEncoder().encode(pin);
     const digest = await crypto.subtle.digest("SHA-256", bytes);
@@ -284,7 +284,7 @@ function showVerificationGate() {
     verificationStatus.textContent = "";
 }
 
-// Added by: Ntombi — verify account password and PIN.
+//verify account password and PIN.
 verificationForm.addEventListener("submit", async event => {
     event.preventDefault();
 
@@ -414,7 +414,7 @@ async function loadContacts() {
             const name = document.createElement("h3");
             name.textContent = contact.name || "";
 
-            // Added by: Ntombi — show only the last four phone-number characters.
+            //show only the last four phone-number characters.
             const phone = document.createElement("p");
             const fullPhone = String(contact.phone || "");
             const visibleDigits = 4;
