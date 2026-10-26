@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -117,6 +117,36 @@
         input:focus {
             border-color: #364935;
             box-shadow: 0 0 0 3px rgba(54, 73, 53, 0.12);
+        }
+
+        /* Added by: Thumbi - visually mask the email when focus leaves the field. */
+        .email-mask-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .email-mask-wrapper input.masked-email {
+            color: transparent;
+            caret-color: transparent;
+        }
+
+        .email-mask-display {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            padding: 13px 15px;
+            border: 1.5px solid transparent;
+            pointer-events: none;
+            font: inherit;
+            font-size: 0.92rem;
+            color: #262626;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .email-mask-display[hidden] {
+            display: none;
         }
 
         .password-wrapper {
@@ -276,6 +306,51 @@
         </section>
     </main>
 
+    <!-- Added by: Thumbi - visually mask the email without changing its value. -->
+    <script>
+        const emailInput = document.getElementById("email");
+        const emailWrapper = document.createElement("div");
+
+        emailWrapper.className = "email-mask-wrapper";
+        emailInput.parentNode.insertBefore(emailWrapper, emailInput);
+        emailWrapper.appendChild(emailInput);
+
+        const maskedDisplay = document.createElement("div");
+
+        maskedDisplay.className = "email-mask-display";
+        maskedDisplay.hidden = true;
+        maskedDisplay.setAttribute("aria-hidden", "true");
+        emailWrapper.appendChild(maskedDisplay);
+
+        function maskEmail(email) {
+            const atIndex = email.lastIndexOf("@");
+
+            if (atIndex <= 0) {
+                return email;
+            }
+
+            return email.substring(0, Math.min(3, atIndex))
+                + "***"
+                + email.substring(atIndex);
+        }
+
+        emailInput.addEventListener("blur", function () {
+            const email = emailInput.value.trim();
+
+            if (email && email.includes("@")) {
+                maskedDisplay.textContent = maskEmail(email);
+                maskedDisplay.hidden = false;
+                emailInput.classList.add("masked-email");
+            }
+        });
+
+        emailInput.addEventListener("focus", function () {
+            maskedDisplay.hidden = true;
+            emailInput.classList.remove("masked-email");
+        });
+    </script>
+
     <script type="module" src="script.js"></script>
 </body>
 </html>
+```
