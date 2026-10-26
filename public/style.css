@@ -29,7 +29,7 @@ body {
     border: 12px solid #111;
     border-radius: 40px;
     overflow: hidden;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
 }
 
 /* ==========================
@@ -64,7 +64,6 @@ body {
     height: calc(100% - 40px);
     padding: 35px 25px;
     overflow-y: auto;
-
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -90,7 +89,6 @@ body {
     line-height: 1.5;
 }
 
-
 /* ==========================
    BUTTON GROUP
 ========================== */
@@ -109,16 +107,13 @@ body {
 .secondary-btn {
     width: 100%;
     height: 56px;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     border-radius: 18px;
     text-decoration: none;
     font-size: 17px;
     font-weight: 600;
-
     transition: 0.25s ease;
     cursor: pointer;
 }
@@ -152,11 +147,9 @@ body {
 /* ==========================
    LOGIN PAGE
 ========================== */
-
 .login-form {
     width: 100%;
     margin-top: 50px;
-
     display: flex;
     flex-direction: column;
     gap: 22px;
@@ -178,17 +171,12 @@ body {
 .input-group select {
     width: 100%;
     height: 56px;
-
     padding: 0 18px;
-
     border: none;
     border-radius: 18px;
-
     background: #F7EFD9;
     color: #2E1C30;
-
     font-size: 16px;
-
     outline: none;
     transition: 0.25s ease;
 }
@@ -207,8 +195,9 @@ body {
     border: 2px solid #5A3D5C;
 }
 
-/* Forgot Password */
-
+/* ==========================
+   FORGOT PASSWORD
+========================== */
 .forgot-password {
     text-align: right;
     text-decoration: none;
@@ -223,28 +212,115 @@ body {
     text-decoration: underline;
 }
 
-/* Login Button */
-
+/* ==========================
+   LOGIN BUTTON
+========================== */
 .login-form .primary-btn {
     width: 100%;
     height: 56px;
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     border: none;
     border-radius: 18px;
-
     background: #5A3D5C;
     color: white;
-
     font-size: 17px;
     font-weight: 600;
-
     cursor: pointer;
 }
 
 .login-form .primary-btn:hover {
     background: #472F49;
+}
+
+/* ==========================
+   BLURRED MODAL BACKGROUND
+========================== */
+#diary-lock-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+
+    /* Transparent overlay with blur */
+    background: rgba(46, 28, 48, 0.25) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+
+    z-index: 99999 !important;
+}
+
+/* ==========================
+   PIN MODAL
+========================== */
+#diary-lock-overlay .diary-lock-card {
+    position: relative;
+    background: #F7EFD9;
+    color: #2E1C30;
+    border: 2px solid rgba(90, 61, 92, 0.25);
+    border-radius: 24px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+    max-width: 420px;
+    width: 100%;
+    padding: 28px;
+}
+
+#diary-lock-overlay .diary-lock-card h1,
+#diary-lock-overlay .diary-lock-card h2,
+#diary-lock-overlay .diary-lock-card h3 {
+    color: #5A3D5C;
+    margin-bottom: 12px;
+}
+
+#diary-lock-overlay .diary-lock-card p,
+#diary-lock-overlay .diary-lock-card label {
+    color: #2E1C30;
+}
+
+#diary-lock-overlay .diary-lock-card input {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    border: 1px solid rgba(90, 61, 92, 0.4);
+    border-radius: 12px;
+    background: #FFFFFF;
+    color: #2E1C30;
+    font-size: 16px;
+    outline: none;
+}
+
+#diary-lock-overlay .diary-lock-card input:focus {
+    border: 2px solid #5A3D5C;
+}
+
+#diary-lock-overlay .diary-lock-card button {
+    cursor: pointer;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* ==========================
+   SMALL SCREENS
+========================== */
+@media (max-width: 420px) {
+    .phone {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        border: none;
+    }
+
+    #diary-lock-overlay {
+        padding: 16px;
+    }
+
+    #diary-lock-overlay .diary-lock-card {
+        padding: 22px;
+    }
 }
