@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siza-Me | Tracker</title>
+    <meta name="description" content="Choose a tracking method and manage location sharing.">
+</head>
+<body>
+    <main id="tracker-page">
+        <header>
+            <h1>Siza-Me Tracker</h1>
+            <p>My community. My Safety. My Voice.</p>
+            <p>Choose a tracking method to continue.</p>
+        </header>
+
+        <section>
+            <h2>Your Safe Circle</h2>
+
+            <p id="tracker-status" role="status" aria-live="polite">
+                Connecting to Firebase...
+            </p>
+
+            <label for="person-select">Select a member:</label>
+
+            <select id="person-select" name="person" disabled>
+                <option value="">Loading members...</option>
+            </select>
+
+            <p id="selected-person-message" aria-live="polite">
+                Select a Safe Circle member if you want to request their location.
+            </p>
+        </section>
+
+        <section aria-label="Tracking options">
+            <h2>Choose a tracking method</h2>
+
+            <article>
+                <h3>Phone-to-Phone</h3>
+                <p>Request live location sharing from another Siza-Me user.</p>
+
+                <button type="button" id="phone-to-phone-button">
+                    Phone-to-Phone
+                </button>
+            </article>
+
+            <article>
+                <h3>Phone-to-GPS</h3>
+                <p>Open the GPS tracking page.</p>
+
+                <button type="button" id="phone-to-gps-button">
+                    Phone-to-GPS
+                </button>
+            </article>
+        </section>
+
+        <section>
+            <h2>Location-sharing requests</h2>
+            <p>Location sharing only begins after the receiving user accepts.</p>
+
+            <p id="tracker-request-status" role="status" aria-live="polite"></p>
+        </section>
+    </main>
+
+    <script type="module" src="tracker.js"></script>
+</body>
+</html>
