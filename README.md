@@ -1,20 +1,47 @@
-🚨 Problem Statement
+## ✦ Problem Statement
 
-Community safety incidents and gender-based violence (GBV) remain serious challenges in South Africa. Individuals affected by these incidents may struggle to access reliable support, document incidents, and navigate fragmented reporting systems.
+Community safety incidents and **gender-based violence (GBV)** remain serious challenges in South Africa. Individuals affected by these incidents may struggle to access reliable support, document incidents, and navigate fragmented reporting systems.
 
-Fear of retaliation, concerns about privacy, limited awareness of available resources, and difficulties accessing appropriate services can prevent individuals from seeking help.
+Fear of retaliation, concerns about privacy, limited awareness of available resources, and difficulties accessing appropriate services can make seeking help even more challenging.
 
 There is a need for an accessible, privacy-conscious platform that brings community safety resources, incident documentation, and GBV support pathways together in one place.
 
-🛡️ Our Solution — SizaMe
+---
 
-SizaMe — My Community. My Safety. My Voice.
+## 🌿 Our Solution — SizaMe
 
-Developed by Team CtrlAltDefeat, SizaMe is a community safety and gender-based violence support platform designed to help individuals document concerns, discover trusted support services, and navigate appropriate response pathways.
+### *My Community. My Safety. My Voice.*
 
-The platform brings together two key pathways:
+Developed by **Team CtrlAltDefeat**, SizaMe is a community safety and gender-based violence support platform designed to help individuals document concerns, discover trusted support services, and navigate appropriate response pathways.
 
-Community Response: Supports the documentation of community safety concerns and helps users explore appropriate reporting and response options.
+The platform brings together two interconnected pathways:
 
-GBV Response: Provides a discreet, user-centred pathway for documenting concerns and finding relevant support and referral services.
+- 🌿 **Community Response** — Helps users document community safety concerns and explore appropriate reporting and response options.
+- 🕊️ **GBV Response** — Offers a discreet, user-centred pathway for documenting concerns and discovering relevant support and referral services.
 
+---
+
+## ✧ Our Mission
+
+We envision a future where finding support, documenting concerns, and navigating safety resources are simpler and more accessible.
+
+SizaMe aims to empower individuals with information, accessible support pathways, and greater control over how they seek help — placing **safety, dignity, privacy, and user choice** at the heart of the experience.
+
+---
+
+<details>
+<summary><strong>◈ Project Status & Disclaimer</strong></summary>
+
+SizaMe is a prototype in development. Feature availability, service integrations, security measures, and hardware concepts depend on implementation, testing, and validation.
+
+The platform is not a substitute for emergency services or professional medical, legal, or GBV support.
+
+</details>
+
+---
+
+<p align="center">
+  <strong>✦ TEAM CTRLALTDEFEAT ✦</strong><br>
+  <em>Building towards safer communities, one step at a time.</em><br><br>
+  <strong>SizaMe · My Community. My Safety. My Voice.</strong>
+</p>
