@@ -1,9 +1,7 @@
-
 "use strict";
 
 /* Siza-Me incident diary.
-   Standalone version: no login, OTP or Firebase.
-   Records are stored in this browser using IndexedDB.
+   Standalone diary records are stored in this browser using IndexedDB.
 */
 
 const DB_NAME = "SizaMeDiaryDB";
@@ -207,8 +205,8 @@ function resetEditor() {
     $("diary-form").reset();
     $("entry-id").value = "";
     $("entry-date").value = today();
-    $("editor-heading").textContent = "Create an Incident Record";
-    $("save-entry").textContent = "Save Incident Record";
+    $("editor-heading").textContent = "New Diary Entry";
+    $("save-entry").textContent = "Save Entry";
 
     selectedImages = [];
     renderSelectedImages();
@@ -570,7 +568,6 @@ function addFullImage(doc, image, y) {
                 return;
             }
 
-            // Fit the whole photograph inside the page, preserving its ratio.
             const scale = Math.min(
                 (pageWidth - margin * 2) / naturalWidth,
                 (pageHeight - margin * 2) / naturalHeight
@@ -855,3 +852,782 @@ async function startDiary() {
 }
 
 startDiary();
+
+/* MY DIARY PROTECTION — Added by: Thumbi */
+
+(() => {
+    const PIN_HASH_KEY = "sizame_diary_pin_hash";
+    const FAILED_ATTEMPTS_KEY = "sizame_diary_failed_attempts";
+    const LOCKOUT_KEY = "sizame_diary_lockout_until";
+
+    const MAX_ATTEMPTS = 3;
+    const COOLDOWN_MS = 4 * 60 * 1000;
+    const INACTIVITY_MS = 60 * 1000;
+
+    let inactivityTimer;
+    let isLocked = true;
+    let savedEntriesVisible = false;
+    let attachmentsVisible = false;
+
+    let auth;
+    let EmailAuthProvider;
+    let reauthenticateWithCredential;
+
+    const styles = document.createElement("style");
+
+    styles.textContent = `
+        #diary-privacy-lock,
+        #diary-quick-exit {
+            position: fixed;
+            top: 12px;
+            z-index: 9998;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 9px;
+            color: white;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        #diary-privacy-lock {
+            right: 12px;
+            background: #364935;
+        }
+
+        #diary-quick-exit {
+            left: 12px;
+            background: #8b3028;
+        }
+
+        #diary-lock-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            background: rgba(23, 37, 27, 0.18);
+            -webkit-backdrop-filter: blur(18px);
+            backdrop-filter: blur(18px);
+            color: #364935;
+            font-family: Poppins, sans-serif;
+        }
+
+        #diary-lock-card {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 30px;
+            box-sizing: border-box;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-radius: 22px;
+            background: #f6efe6;
+            box-shadow: 0 18px 55px rgba(20, 35, 24, 0.25);
+            text-align: center;
+            animation: diaryCardAppear 0.22s ease-out;
+        }
+
+        #diary-lock-card .diary-lock-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 16px;
+            border-radius: 18px;
+            background: #e4e8dd;
+            color: #364935;
+            font-size: 27px;
+        }
+
+        #diary-lock-card h2 {
+            margin: 0 0 10px;
+            color: #364935;
+            font-size: 23px;
+            font-weight: 600;
+        }
+
+        #diary-lock-card p {
+            color: #6c7468;
+            line-height: 1.6;
+        }
+
+        #diary-lock-card input {
+            display: block;
+            width: 100%;
+            margin: 12px 0;
+            padding: 14px;
+            box-sizing: border-box;
+            border: 1px solid #d8c8b6;
+            border-radius: 12px;
+            outline: none;
+            background: #fffdf9;
+            color: #364935;
+            font: inherit;
+            letter-spacing: 1px;
+        }
+
+        #diary-lock-card input[type="password"][inputmode="numeric"] {
+            letter-spacing: 5px;
+            text-align: center;
+        }
+
+        #diary-lock-card input:focus {
+            border-color: #364935;
+            box-shadow: 0 0 0 3px rgba(54, 73, 53, 0.12);
+        }
+
+        #diary-lock-card button,
+        .diary-protection-button {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 11px;
+            background: #364935;
+            color: white;
+            font: inherit;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+
+        #diary-lock-card button {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        #diary-lock-card button:hover,
+        .diary-protection-button:hover {
+            background: #283b29;
+        }
+
+        #diary-lock-card .diary-cancel-button {
+            margin-top: 10px;
+            border: 1px solid #d8c8b6;
+            background: transparent;
+            color: #364935;
+        }
+
+        #diary-lock-card .diary-cancel-button:hover {
+            background: #eee5d9;
+        }
+
+        #diary-lock-card .diary-exit-button {
+            margin-top: 10px;
+            background: #8b3028;
+        }
+
+        #diary-lock-card .diary-exit-button:hover {
+            background: #70251f;
+        }
+
+        #diary-lock-message {
+            overflow-wrap: anywhere;
+            font-size: 13px;
+        }
+
+        .diary-protection-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 10px 0;
+            background: #364935;
+        }
+
+        .diary-protection-button .diary-button-lock {
+            font-size: 16px;
+        }
+
+        @keyframes diaryCardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(8px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            #diary-lock-card {
+                animation: none;
+            }
+        }
+    `;
+
+    document.head.appendChild(styles);
+
+    const privacyButton = document.createElement("button");
+    privacyButton.id = "diary-privacy-lock";
+    privacyButton.type = "button";
+    privacyButton.textContent = "Privacy Screen";
+    privacyButton.addEventListener("click", lockDiary);
+    document.body.appendChild(privacyButton);
+
+    const quickExitButton = document.createElement("button");
+    quickExitButton.id = "diary-quick-exit";
+    quickExitButton.type = "button";
+    quickExitButton.textContent = "Quick Exit";
+    quickExitButton.addEventListener("click", () => {
+        window.location.replace("dashboard.html");
+    });
+    document.body.appendChild(quickExitButton);
+
+    const overlay = document.createElement("div");
+    overlay.id = "diary-lock-overlay";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.style.display = "none";
+    document.body.appendChild(overlay);
+
+    const savedEntries = $("saved-entries");
+    const attachmentsGrid = $("attachments-grid");
+
+    const entriesButton = document.createElement("button");
+    entriesButton.type = "button";
+    entriesButton.className = "diary-protection-button";
+    entriesButton.innerHTML =
+        '<span class="diary-button-lock" aria-hidden="true">⌑</span> Verify to View Saved Entries';
+
+    savedEntries.parentNode.insertBefore(entriesButton, savedEntries);
+    savedEntries.hidden = true;
+
+    const attachmentsButton = document.createElement("button");
+    attachmentsButton.type = "button";
+    attachmentsButton.className = "diary-protection-button";
+    attachmentsButton.innerHTML =
+        '<span class="diary-button-lock" aria-hidden="true">⌑</span> Verify to View Attachments';
+
+    attachmentsGrid.parentNode.insertBefore(attachmentsButton, attachmentsGrid);
+    attachmentsGrid.hidden = true;
+
+    function failedAttempts() {
+        return Number(localStorage.getItem(FAILED_ATTEMPTS_KEY) || 0);
+    }
+
+    function lockoutUntil() {
+        return Number(localStorage.getItem(LOCKOUT_KEY) || 0);
+    }
+
+    function resetAttempts() {
+        localStorage.setItem(FAILED_ATTEMPTS_KEY, "0");
+        localStorage.removeItem(LOCKOUT_KEY);
+    }
+
+    function isTemporarilyLocked() {
+        return Date.now() < lockoutUntil();
+    }
+
+    async function hashPIN(pin) {
+        if (!crypto.subtle) {
+            throw new Error(
+                "PIN verification requires localhost or a secure HTTPS connection."
+            );
+        }
+
+        const bytes = new TextEncoder().encode(pin);
+        const digest = await crypto.subtle.digest("SHA-256", bytes);
+
+        return Array.from(new Uint8Array(digest))
+            .map((byte) => byte.toString(16).padStart(2, "0"))
+            .join("");
+    }
+
+    async function loadFirebaseAuth() {
+        if (auth && EmailAuthProvider && reauthenticateWithCredential) {
+            return;
+        }
+
+        const firebaseModule = await import("./firebase.js");
+        const authModule = await import(
+            "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js"
+        );
+
+        auth = firebaseModule.auth;
+        EmailAuthProvider = authModule.EmailAuthProvider;
+        reauthenticateWithCredential = authModule.reauthenticateWithCredential;
+
+        if (!auth) {
+            throw new Error(
+                'Firebase Authentication was not found. Check that firebase.js exports "auth".'
+            );
+        }
+    }
+
+    async function getSignedInUser() {
+        await loadFirebaseAuth();
+
+        if (auth.currentUser) {
+            return auth.currentUser;
+        }
+
+        return new Promise((resolve) => {
+            let unsubscribe;
+
+            const timeout = setTimeout(() => {
+                if (unsubscribe) unsubscribe();
+                resolve(auth.currentUser || null);
+            }, 5000);
+
+            unsubscribe = auth.onAuthStateChanged((user) => {
+                clearTimeout(timeout);
+                unsubscribe();
+                resolve(user || null);
+            });
+        });
+    }
+
+    async function verifyAccountPassword(password) {
+        const user = await getSignedInUser();
+
+        if (!user) {
+            throw new Error(
+                "You are not signed in. Sign in to your Siza-Me account and reopen your diary."
+            );
+        }
+
+        if (!user.email) {
+            throw new Error(
+                "Your Firebase account does not have an email address for password verification."
+            );
+        }
+
+        const hasPasswordProvider = (user.providerData || []).some(
+            (provider) => provider.providerId === "password"
+        );
+
+        if (!hasPasswordProvider) {
+            throw new Error(
+                "This account does not use email and password sign-in. Password verification cannot continue."
+            );
+        }
+
+        const credential = EmailAuthProvider.credential(user.email, password);
+
+        await reauthenticateWithCredential(user, credential);
+    }
+
+    function recordFailedAttempt(status) {
+        const attempts = failedAttempts() + 1;
+
+        localStorage.setItem(FAILED_ATTEMPTS_KEY, String(attempts));
+
+        if (attempts >= MAX_ATTEMPTS) {
+            localStorage.setItem(
+                LOCKOUT_KEY,
+                String(Date.now() + COOLDOWN_MS)
+            );
+
+            status.textContent =
+                "Three incorrect attempts. Verification is locked for four minutes.";
+        } else {
+            status.textContent =
+                "The password or PIN is incorrect. " +
+                (MAX_ATTEMPTS - attempts) +
+                " attempt(s) remaining.";
+        }
+    }
+
+    function isPasswordError(error) {
+        return [
+            "auth/wrong-password",
+            "auth/invalid-credential",
+            "auth/invalid-login-credentials",
+            "auth/user-token-expired"
+        ].includes(error?.code);
+    }
+
+    function lockMessage() {
+        const seconds = Math.max(
+            0,
+            Math.ceil((lockoutUntil() - Date.now()) / 1000)
+        );
+
+        return "Too many incorrect attempts. Try again in " +
+            seconds + " seconds.";
+    }
+
+    /*
+       Main diary lock:
+       - First use: verify Firebase password and create a six-digit PIN.
+       - Later visits: verify the Firebase password and the existing PIN.
+       The account password is never saved in localStorage.
+    */
+
+    function showLock(message = "") {
+        isLocked = true;
+        clearTimeout(inactivityTimer);
+
+        renderVerificationDialog({
+            title: localStorage.getItem(PIN_HASH_KEY)
+                ? "Your Diary Is Private"
+                : "Set Up Diary Protection",
+            description: localStorage.getItem(PIN_HASH_KEY)
+                ? "Enter your existing Siza-Me account password and your six-digit diary PIN."
+                : "Verify your existing Siza-Me account password, then create a six-digit diary PIN.",
+            setup: !localStorage.getItem(PIN_HASH_KEY),
+            cancelable: false,
+            initialMessage: message,
+            onSuccess: unlockDiary
+        });
+    }
+
+    function lockDiary() {
+        showLock("Your diary is hidden. Verify your password and PIN to continue.");
+    }
+
+    function unlockDiary() {
+        isLocked = false;
+        overlay.style.display = "none";
+        resetInactivityTimer();
+    }
+
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+
+        if (!isLocked) {
+            inactivityTimer = setTimeout(() => {
+                lockDiary();
+            }, INACTIVITY_MS);
+        }
+    }
+
+    /*
+       Reusable password-and-PIN verification dialog.
+       In setup mode, the user creates a PIN only after the Firebase password
+       has been successfully verified.
+    */
+
+    function renderVerificationDialog({
+        title,
+        description,
+        setup = false,
+        cancelable = false,
+        initialMessage = "",
+        onSuccess,
+        onCancel
+    }) {
+        overlay.style.display = "flex";
+
+        overlay.innerHTML = `
+            <div id="diary-lock-card">
+                <div class="diary-lock-icon" aria-hidden="true">⌑</div>
+
+                <h2>${escapeHTML(title)}</h2>
+                <p>${escapeHTML(description)}</p>
+
+                <form id="diary-verify-form">
+                    <input
+                        id="diary-account-password"
+                        type="password"
+                        autocomplete="current-password"
+                        placeholder="Siza-Me account password"
+                        aria-label="Siza-Me account password"
+                        required
+                    >
+
+                    ${setup ? `
+                        <input
+                            id="diary-new-pin"
+                            type="password"
+                            inputmode="numeric"
+                            pattern="[0-9]{6}"
+                            minlength="6"
+                            maxlength="6"
+                            autocomplete="off"
+                            placeholder="Create six-digit PIN"
+                            aria-label="Create six-digit diary PIN"
+                            required
+                        >
+
+                        <input
+                            id="diary-confirm-pin"
+                            type="password"
+                            inputmode="numeric"
+                            pattern="[0-9]{6}"
+                            minlength="6"
+                            maxlength="6"
+                            autocomplete="off"
+                            placeholder="Confirm six-digit PIN"
+                            aria-label="Confirm six-digit diary PIN"
+                            required
+                        >
+                    ` : `
+                        <input
+                            id="diary-existing-pin"
+                            type="password"
+                            inputmode="numeric"
+                            pattern="[0-9]{6}"
+                            minlength="6"
+                            maxlength="6"
+                            autocomplete="off"
+                            placeholder="Six-digit diary PIN"
+                            aria-label="Six-digit diary PIN"
+                            required
+                        >
+                    `}
+
+                    <button type="submit">
+                        ${setup ? "Verify Password and Create PIN" : "Verify and Continue"}
+                    </button>
+
+                    ${cancelable ? `
+                        <button type="button"
+                            id="diary-verify-cancel"
+                            class="diary-cancel-button">
+                            Cancel
+                        </button>
+                    ` : ""}
+                </form>
+
+                <p id="diary-lock-message" role="status" aria-live="polite">${escapeHTML(initialMessage)}</p>
+
+                <button type="button"
+                    id="diary-lock-quick-exit"
+                    class="diary-exit-button">
+                    Quick Exit
+                </button>
+            </div>
+        `;
+
+        const form = document.getElementById("diary-verify-form");
+        const passwordInput = document.getElementById("diary-account-password");
+        const status = document.getElementById("diary-lock-message");
+        const submitButton = form.querySelector('button[type="submit"]');
+
+        document.getElementById("diary-lock-quick-exit")
+            .addEventListener("click", () => {
+                window.location.replace("dashboard.html");
+            });
+
+        if (cancelable) {
+            document.getElementById("diary-verify-cancel")
+                .addEventListener("click", () => {
+                    if (onCancel) onCancel();
+                });
+        }
+
+        passwordInput.focus();
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            if (isTemporarilyLocked()) {
+                status.textContent = lockMessage();
+                return;
+            }
+
+            const password = passwordInput.value;
+
+            let pin;
+            let confirmation;
+
+            if (setup) {
+                pin = document.getElementById("diary-new-pin").value;
+                confirmation = document.getElementById("diary-confirm-pin").value;
+
+                if (!/^[0-9]{6}$/.test(pin)) {
+                    status.textContent = "Your PIN must contain exactly six digits.";
+                    return;
+                }
+
+                if (pin !== confirmation) {
+                    status.textContent = "The PINs do not match.";
+                    return;
+                }
+            } else {
+                pin = document.getElementById("diary-existing-pin").value;
+
+                if (!/^[0-9]{6}$/.test(pin)) {
+                    status.textContent = "Enter exactly six digits for your PIN.";
+                    return;
+                }
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = "Verifying...";
+
+            try {
+                /*
+                   Firebase checks the account password.
+                   The raw password is not stored.
+                */
+                await verifyAccountPassword(password);
+
+                if (setup) {
+                    const pinHash = await hashPIN(pin);
+
+                    localStorage.setItem(PIN_HASH_KEY, pinHash);
+                    resetAttempts();
+
+                    passwordInput.value = "";
+
+                    if (onSuccess) onSuccess();
+                    return;
+                }
+
+                const enteredHash = await hashPIN(pin);
+                const storedHash = localStorage.getItem(PIN_HASH_KEY);
+
+                if (!storedHash || enteredHash !== storedHash) {
+                    recordFailedAttempt(status);
+                    passwordInput.value = "";
+                    document.getElementById("diary-existing-pin").value = "";
+                    passwordInput.focus();
+                    return;
+                }
+
+                resetAttempts();
+                passwordInput.value = "";
+
+                if (onSuccess) onSuccess();
+            } catch (error) {
+                console.error("Diary verification failed:", error);
+
+                if (isPasswordError(error)) {
+                    recordFailedAttempt(status);
+                    passwordInput.value = "";
+
+                    if (!setup) {
+                        document.getElementById("diary-existing-pin").value = "";
+                    }
+
+                    passwordInput.focus();
+                } else {
+                    status.textContent =
+                        error.message ||
+                        "Could not verify your account. Check your connection and try again.";
+                }
+            } finally {
+                submitButton.disabled = false;
+
+                if (document.getElementById("diary-new-pin")) {
+                    submitButton.textContent = "Verify Password and Create PIN";
+                } else {
+                    submitButton.textContent = "Verify and Continue";
+                }
+
+                if (isTemporarilyLocked()) {
+                    status.textContent = lockMessage();
+                    submitButton.disabled = true;
+                }
+            }
+        });
+    }
+
+    /*
+       Saved Entries and Attachments each require the account password
+       and diary PIN. The main privacy lock remains in place if the
+       verification is cancelled.
+    */
+
+    function requestCredentials(title, description) {
+        return new Promise((resolve) => {
+            if (isTemporarilyLocked()) {
+                showLock(lockMessage());
+                resolve(false);
+                return;
+            }
+
+            const wasLocked = isLocked;
+            let finished = false;
+
+            clearTimeout(inactivityTimer);
+            isLocked = true;
+
+            function finish(result) {
+                if (finished) return;
+                finished = true;
+
+                if (wasLocked) {
+                    isLocked = true;
+                    showLock();
+                } else {
+                    isLocked = false;
+                    overlay.style.display = "none";
+                    resetInactivityTimer();
+                }
+
+                resolve(result);
+            }
+
+            const hasPIN = Boolean(localStorage.getItem(PIN_HASH_KEY));
+
+            renderVerificationDialog({
+                title: hasPIN ? title : "Set Up Diary Protection",
+                description: hasPIN
+                    ? description
+                    : "Before viewing this information, verify your account password and create a six-digit diary PIN.",
+                setup: !hasPIN,
+                cancelable: true,
+                onSuccess: () => finish(true),
+                onCancel: () => finish(false)
+            });
+        });
+    }
+
+    ["click", "keydown", "mousemove", "touchstart", "scroll"].forEach(
+        (eventName) => {
+            document.addEventListener(eventName, () => {
+                if (!isLocked) {
+                    resetInactivityTimer();
+                }
+            }, { passive: true })
+        }
+    );
+
+    entriesButton.addEventListener("click", async () => {
+        if (savedEntriesVisible) {
+            savedEntries.hidden = true;
+            savedEntriesVisible = false;
+
+            entriesButton.innerHTML =
+                '<span class="diary-button-lock" aria-hidden="true">⌑</span> Verify to View Saved Entries';
+            return;
+        }
+
+        const verified = await requestCredentials(
+            "View Saved Entries",
+            "Enter your Siza-Me account password and diary PIN to view your saved incident records."
+        );
+
+        if (verified) {
+            savedEntries.hidden = false;
+            savedEntriesVisible = true;
+
+            entriesButton.innerHTML =
+                '<span class="diary-button-lock" aria-hidden="true">⌑</span> Hide Saved Entries';
+        }
+    });
+
+    attachmentsButton.addEventListener("click", async () => {
+        if (attachmentsVisible) {
+            attachmentsGrid.hidden = true;
+            attachmentsVisible = false;
+
+            attachmentsButton.innerHTML =
+                '<span class="diary-button-lock" aria-hidden="true">⌑</span> Verify to View Attachments';
+            return;
+        }
+
+        const verified = await requestCredentials(
+            "View Attachments",
+            "Enter your Siza-Me account password and diary PIN to view your saved photographs."
+        );
+
+        if (verified) {
+            attachmentsGrid.hidden = false;
+            attachmentsVisible = true;
+
+            attachmentsButton.innerHTML =
+                '<span class="diary-button-lock" aria-hidden="true">⌑</span> Hide Attachments';
+        }
+    });
+
+    showLock();
+})();
