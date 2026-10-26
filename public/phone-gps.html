@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Siza-Me | GPS Tracker</title>
+    <meta name="description" content="Enter a GPS tracker number to view a location in Siza-Me.">
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        main {
+            max-width: 750px;
+            margin: auto;
+        }
+
+        section {
+            margin: 25px 0;
+        }
+
+        label {
+            display: block;
+            margin: 12px 0 6px;
+        }
+
+        input, button {
+            box-sizing: border-box;
+            padding: 12px;
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        input {
+            width: 100%;
+            max-width: 350px;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        #location-map {
+            width: 100%;
+            height: 380px;
+            margin: 15px 0;
+        }
+
+        #location-section {
+            margin-top: 30px;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+<main id="phone-to-gps-page">
+
+    <header>
+        <h1>Siza-Me Tracker</h1>
+        <p>My community. My Safety. My Voice.</p>
+    </header>
+
+    <section id="tracker-entry">
+        <h2>GPS Tracker</h2>
+
+        <p>Enter Ntombi's 6-digit GPS tracker number to view her location.</p>
+
+        <form id="tracker-form">
+            <label for="tracker-number">GPS Tracker 6-Digit Number</label>
+
+            <input
+                type="text"
+                id="tracker-number"
+                name="tracker-number"
+                placeholder="e.g. 482619"
+                inputmode="numeric"
+                pattern="[0-9]{6}"
+                minlength="6"
+                maxlength="6"
+                autocomplete="off"
+                required
+            >
+
+            <br>
+
+            <button type="submit">Track Ntombi</button>
+        </form>
+
+        <p id="tracker-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="location-section" hidden>
+        <h2>Ntombi's Location</h2>
+
+        <p id="location-status" role="status" aria-live="polite">
+            Location page opened.
+        </p>
+
+        <p><strong>GPS Tracker Number:</strong> <span id="display-number"></span></p>
+
+        <div id="location-map"></div>
+
+        <button type="button" id="google-maps-button">
+            Open in Google Maps
+        </button>
+    </section>
+
+    <footer>
+        <button type="button" id="back-button">Back to Tracker</button>
+
+        <button type="button" id="phone-button">
+            Switch to Phone-to-Phone
+        </button>
+    </footer>
+
+</main>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+"use strict";
+
+const form = document.getElementById("tracker-form");
+const trackerInput = document.getElementById("tracker-number");
+const trackerStatus = document.getElementById("tracker-status");
+const locationSection = document.getElementById("location-section");
+const locationStatus = document.getElementById("location-status");
+const displayNumber = document.getElementById("display-number");
+
+let map = null;
+let marker = null;
+let googleMapsUrl = null;
+
+// Sample map coordinates for the page layout.
+// Replace these with the wearable's real coordinates when its
+// GPS tracking service is connected.
+const sampleLocation = {
+    latitude: -29.8587,
+    longitude: 31.0218
+};
+
+function showLocation(trackerNumber) {
+    displayNumber.textContent = trackerNumber;
+    locationSection.hidden = false;
+
+    if (!map) {
+        map = L.map("location-map").setView(
+            [sampleLocation.latitude, sampleLocation.longitude],
+            15
+        );
+
+        L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+        }).addTo(map);
+    }
+
+    if (marker) {
+        marker.setLatLng([
+            sampleLocation.latitude,
+            sampleLocation.longitude
+        ]);
+    } else {
+        marker = L.marker([
+            sampleLocation.latitude,
+            sampleLocation.longitude
+        ]).addTo(map);
+    }
+
+    marker.bindPopup("Ntombi's location").openPopup();
+
+    map.setView([
+        sampleLocation.latitude,
+        sampleLocation.longitude
+    ], 15);
+
+    googleMapsUrl =
+        "https://www.google.com/maps?q=" +
+        sampleLocation.latitude + "," +
+        sampleLocation.longitude;
+
+    locationStatus.textContent =
+        "Location map opened for tracker " + trackerNumber + ".";
+
+    trackerStatus.textContent = "";
+
+    setTimeout(function () {
+        map.invalidateSize();
+    }, 200);
+
+    locationSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const trackerNumber = trackerInput.value.trim();
+
+    if (!/^[0-9]{6}$/.test(trackerNumber)) {
+        trackerStatus.textContent =
+            "Please enter a valid 6-digit GPS tracker number.";
+        locationSection.hidden = true;
+        return;
+    }
+
+    // Any six-digit number opens the sample location.
+
+    showLocation(trackerNumber);
+});
+
+document.getElementById("google-maps-button")
+    .addEventListener("click", function () {
+        if (googleMapsUrl) {
+            window.open(
+                googleMapsUrl,
+                "_blank",
+                "noopener,noreferrer"
+            );
+        }
+    });
+
+document.getElementById("back-button")
+    .addEventListener("click", function () {
+        window.location.href = "tracker.html";
+    });
+
+document.getElementById("phone-button")
+    .addEventListener("click", function () {
+        window.location.href = "phone-to-phone.html";
+    });
+</script>
+
+</body>
+</html>
