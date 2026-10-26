@@ -29,16 +29,6 @@ SizaMe aims to empower individuals with information, accessible support pathways
 
 ---
 
-<details>
-<summary><strong>◈ Project Status & Disclaimer</strong></summary>
-
-SizaMe is a prototype in development. Feature availability, service integrations, security measures, and hardware concepts depend on implementation, testing, and validation.
-
-The platform is not a substitute for emergency services or professional medical, legal, or GBV support.
-
-</details>
-
----
 
 <p align="center">
   <strong>✦ TEAM CTRLALTDEFEAT ✦</strong><br>
