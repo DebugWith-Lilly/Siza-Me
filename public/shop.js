@@ -1,462 +1,598 @@
-/* ==============================
-   PRODUCTS AND PRICES
-============================== */
-const products = [
-    {
-        id: "tshirt",
-        name: "Siza-Me T-Shirt",
-        category: "Clothing",
-        price: 150,
-        description: "Siza-Me branded T-shirt.",
-        image: "tshirt.png"
-    },
-    {
-        id: "bucket-hat",
-        name: "Siza-Me Bucket Hat",
-        category: "Clothing",
-        price: 200,
-        description: "Siza-Me branded bucket hat.",
-        image: "bucket-hat.jpg"
-    },
-    {
-        id: "cap",
-        name: "Siza-Me Cap",
-        category: "Clothing",
-        price: 100,
-        description: "Siza-Me branded cap.",
-        image: "cap.jpg"
-    },
-    {
-        id: "stanley",
-        name: "Siza-Me Stanley",
-        category: "Accessories",
-        price: 250,
-        description: "Siza-Me branded drink tumbler.",
-        image: "tumbler.jpg"
-    },
-    {
-        id: "tracker",
-        name: "Siza-Me Tracking Device",
-        category: "Safety Devices",
-        price: 600,
-        description: "Safety-tracking device for Siza-Me.",
-        image: "tracker.jpg"
-    },
-    {
-        id: "tracker-stickers",
-        name: "Siza-Me Tracker Stickers (30 Pack)",
-        category: "Accessories",
-        price: 300,
-        description: "Pack of 30 Siza-Me tracker stickers.",
-        image: "sticker.jpg"
+
+import { auth, db } from "./firebase.js";
+
+import {
+    collection,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+
+import {
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+
+// =======================================
+// PAGE ELEMENTS
+// =======================================
+
+const sosButton = document.getElementById("sos-button");
+const sosScanner = document.getElementById("sos-scanner");
+const sosStatus = document.getElementById("sos-status");
+const locationStatus = document.getElementById("location-status");
+const safeCircleStatus = document.getElementById("safe-circle-status");
+const deliveryList = document.getElementById("delivery-status-list");
+const stopTrackingButton = document.getElementById("stop-tracking-button");
+const openMapLink = document.getElementById("open-map-link");
+
+// =======================================
+// APPLICATION STATE
+// =======================================
+
+let currentUser = null;
+let activationInProgress = false;
+
+let trackingActive = false;
+let watchId = null;
+
+let map = null;
+let userMarker = null;
+let accuracyCircle = null;
+
+let latestLocation = null;
+let locationLink = "";
+let authReadyResolved = false;
+
+let resolveAuthReady;
+
+const authReady = new Promise(resolve => {
+    resolveAuthReady = resolve;
+});
+
+// =======================================
+// FIREBASE AUTHENTICATION
+// =======================================
+
+onAuthStateChanged(auth, user => {
+    currentUser = user;
+
+    if (!authReadyResolved) {
+        authReadyResolved = true;
+        resolveAuthReady();
     }
-];
-/* ==============================
-   PROFESSIONAL SUPPORT DIRECTORY
-============================== */
-const providers = [
-    {
-        category: "Psychologist",
-        name: "Lauren Calder",
-        company: "Lauren Calder & Associates",
-        venue: "Lincoln on the Lake",
-        address: "2 The High Street, Umhlanga, Durban, KwaZulu-Natal, 4319",
-        phone: "0647905048",
-        email: "calderpractice@gmail.com",
-        website: "https://www.laurencalder.co.za/",
-        hours: "Contact the practice to confirm current opening hours.",
-        service: "Psychological services and consultations.",
-        image: "lauren-calder.jpg"
-    },
-    {
-        category: "Psychologist",
-        name: "Andiswa Sitole",
-        company: "MultiMedics Umhlanga",
-        venue: "The Madison, Suite 26, Level 3",
-        address: "Corner of 22 Gateway Boulevard and 5 East Row, opposite Gateway Hospital, Umhlanga Rocks",
-        phone: "0315661603",
-        email: "",
-        website: "https://multimedicsumhlanga.co.za/clinical-psychologist/",
-        hours: "Previously listed: Monday-Friday, 09:00-17:00; Saturday, 09:00-13:00. Confirm current hours.",
-        service: "Psychological services and consultations."
-    },
-    {
-        category: "Lawyer",
-        name: "Attorney name not confirmed",
-        company: "Irwin & Co. Attorneys",
-        venue: "2 Ncondo Place",
-        address: "Umhlanga Ridge, Durban, KwaZulu-Natal, 4319",
-        phone: "0311400447",
-        email: "info@irwinandcolaw.com",
-        website: "https://www.irwinandcolaw.com/",
-        booking: "https://www.irwinandcolaw.com/contact.php",
-        hours: "Previously listed: Monday-Friday, 08:00-18:00; Saturday by appointment. Confirm current hours.",
-        service: "Legal services and consultations.",
-        image: "irwin.jpg"
-    },
-    {
-        category: "Insurance Company",
-        name: "Representative name not confirmed",
-        company: "Pomsun & Associates",
-        venue: "Umhlanga office; exact venue not confirmed",
-        address: "Umhlanga, KwaZulu-Natal. Confirm the full street address before visiting.",
-        phone: "",
-        email: "info@pomsun.co.za",
-        website: "https://www.pomsun.co.za/Home/",
-        hours: "Previously listed: Monday-Thursday, 08:00-16:30; Friday, 08:00-16:00. Confirm current hours.",
-        service: "Insurance services and enquiries.",
-        image: "pomsun.jpg"
-    },
-    {
-        category: "Insurance Company",
-        name: "Broker name not confirmed",
-        company: "IJ Duncan Insurance Brokers",
-        venue: "Unit 6, Armstrong House",
-        address: "94 Armstrong Avenue, La Lucia Ridge, Umhlanga, 4319",
-        phone: "0313051410",
-        email: "info@duncaninsurance.co.za",
-        website: "https://duncaninsurance.co.za/",
-        booking: "https://duncaninsurance.co.za/contact-us/",
-        hours: "Not confirmed. Contact the company before visiting.",
-        service: "Insurance brokerage and enquiries.",
-        image: "ij-duncan.jpg"
-    },
-    {
-        category: "Private Security",
-        name: "Local representative not confirmed",
-        company: "AURA",
-        venue: "Local office or response location not confirmed",
-        address: "Contact AURA to confirm local coverage and the appropriate address.",
-        phone: "",
-        email: "",
-        website: "https://www.aurasos.com/en-za/",
-        hours: "Contact AURA to confirm service availability and operating arrangements.",
-        service: "Private security and emergency response services. Confirm availability in your area."
-    },
-    {
-        category: "Dermatologist",
-        name: "Specialist name not confirmed",
-        company: "Dermatology Clinic Umhlanga",
-        venue: "Umhlanga Medical Centre",
-        address: "Umhlanga, Durban, KwaZulu-Natal, 4319",
-        phone: "",
-        email: "",
-        website: "",
-        hours: "Contact practice to confirm hours.",
-        service: "Dermatology and skin care consultations.",
-        image: "dermatology.jpg"
-    }
-];
-/* ==============================
-   HELPER FUNCTIONS
-============================== */
-function getElement(id) {
-    return document.getElementById(id);
-}
-function formatPrice(amount) {
-    return new Intl.NumberFormat("en-ZA", {
-        style: "currency",
-        currency: "ZAR"
-    }).format(amount);
-}
-function makeElement(tag, text) {
-    const element = document.createElement(tag);
-    if (text !== undefined) {
-        element.textContent = text;
-    }
-    return element;
-}
-function makeLink(text, url) {
-    const link = makeElement("a", text);
-    link.href = url;
-    if (url.startsWith("https://")) {
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-    }
-    return link;
-}
-function addDetail(container, label, value) {
-    const paragraph = makeElement("p");
-    const strong = makeElement("strong", label + ": ");
-    paragraph.appendChild(strong);
-    paragraph.appendChild(
-        document.createTextNode(
-            value && value.trim() ? value : "Not confirmed"
-        )
-    );
-    container.appendChild(paragraph);
-}
-/* ==============================
-   DISPLAY PRODUCTS
-============================== */
-function renderProducts() {
-    const list = getElement("product-list");
-    if (!list) return;
-    const search = getElement("product-search");
-    const term = search ? search.value.trim().toLowerCase() : "";
-    list.replaceChildren();
-    const filtered = products.filter(function (product) {
-        return [
-            product.name,
-            product.category,
-            product.description
-        ].join(" ").toLowerCase().includes(term);
-    });
-    if (filtered.length === 0) {
-        list.appendChild(makeElement("p", "No products found."));
-        return;
-    }
-    filtered.forEach(function (product) {
-        const card = makeElement("article");
-        if (product.image) {
-            const img = makeElement("img");
-            img.src = product.image;
-            img.alt = product.name;
-            card.appendChild(img);
-        }
-        card.appendChild(makeElement("h3", product.name));
-        card.appendChild(makeElement("p", product.category));
-        card.appendChild(makeElement("p", product.description));
-        card.appendChild(
-            makeElement("p", "Price: " + formatPrice(product.price))
-        );
-        const button = makeElement("button", "Add to Cart");
-        button.type = "button";
-        button.addEventListener("click", function () {
-            addToCart(product.id);
-        });
-        card.appendChild(button);
-        list.appendChild(card);
-    });
-}
-/* ==============================
-   DISPLAY SERVICE PROVIDERS
-============================== */
-function renderProviders() {
-    const list = getElement("service-list");
-    if (!list) return;
-    const category = getElement("service-category").value;
-    const search = getElement("service-search");
-    const term = search ? search.value.trim().toLowerCase() : "";
-    list.replaceChildren();
-    const filtered = providers.filter(function (provider) {
-        const matchesCategory =
-            category === "all" || provider.category === category;
-        const searchableText = [
-            provider.name,
-            provider.company,
-            provider.category,
-            provider.venue,
-            provider.address,
-            provider.phone,
-            provider.email,
-            provider.service
-        ].join(" ").toLowerCase();
-        return matchesCategory && searchableText.includes(term);
-    });
-    if (filtered.length === 0) {
-        list.appendChild(
-            makeElement("p", "No providers match your search.")
-        );
-        return;
-    }
-    filtered.forEach(function (provider) {
-        const card = makeElement("article");
-        if (provider.image) {
-            const img = makeElement("img");
-            img.src = provider.image;
-            img.alt = provider.company || provider.category;
-            card.appendChild(img);
-        }
-        card.appendChild(makeElement("h3", provider.category));
-        card.appendChild(makeElement("p", provider.service));
-        addDetail(card, "Professional / Contact name", provider.name);
-        addDetail(card, "Company / Practice", provider.company);
-        addDetail(card, "Venue", provider.venue);
-        addDetail(card, "Physical address", provider.address);
-        addDetail(card, "Phone number", provider.phone);
-        addDetail(card, "Email address", provider.email);
-        addDetail(card, "Opening hours", provider.hours);
-        const links = makeElement("div");
-        if (provider.phone) {
-            links.appendChild(
-                makeLink("Call Provider", "tel:" + provider.phone)
-            );
-        }
-        if (provider.email) {
-            links.appendChild(
-                makeLink("Email Provider", "mailto:" + provider.email)
-            );
-        }
-        if (provider.website) {
-            links.appendChild(
-                makeLink("Official Website", provider.website)
-            );
-        }
-        if (provider.booking) {
-            links.appendChild(
-                makeLink("Contact / Booking", provider.booking)
-            );
-        }
-        card.appendChild(links);
-        list.appendChild(card);
-    });
-}
-/* ==============================
-   SHOPPING CART
-============================== */
-const cart = new Map();
-function addToCart(productId) {
-    const product = products.find(function (item) {
-        return item.id === productId;
-    });
-    if (!product) return;
-    const item = cart.get(productId);
-    if (item) {
-        item.quantity++;
+
+    if (!user) {
+        sosStatus.textContent =
+            "Please sign in to use Siza-Me SOS.";
+
+        safeCircleStatus.textContent =
+            "Sign in to load your saved trusted contacts.";
     } else {
-        cart.set(productId, {
-            product: product,
-            quantity: 1
-        });
+        sosStatus.textContent =
+            "SIZA is ready. Press the button to prepare your SOS options.";
     }
-    renderCart();
-    const message = getElement("cart-message");
-    if (message) {
-        message.textContent = product.name + " added to your cart.";
-    }
-}
-function changeQuantity(productId, amount) {
-    const item = cart.get(productId);
-    if (!item) return;
-    item.quantity += amount;
-    if (item.quantity <= 0) {
-        cart.delete(productId);
-    }
-    renderCart();
-}
-function removeFromCart(productId) {
-    cart.delete(productId);
-    renderCart();
-}
-function clearCart() {
-    cart.clear();
-    renderCart();
-    const message = getElement("cart-message");
-    if (message) {
-        message.textContent = "Your cart has been cleared.";
-    }
-}
-function renderCart() {
-    const list = getElement("cart-items");
-    const count = getElement("cart-count");
-    const subtotal = getElement("cart-subtotal");
-    const checkout = getElement("open-checkout");
-    let itemCount = 0;
-    let total = 0;
-    cart.forEach(function (item) {
-        itemCount += item.quantity;
-        total += item.product.price * item.quantity;
-    });
-    if (count) count.textContent = String(itemCount);
-    if (subtotal) subtotal.textContent = formatPrice(total);
-    if (checkout) {
-        checkout.disabled = true;
-        checkout.textContent = "Checkout unavailable";
-    }
-    if (!list) return;
-    list.replaceChildren();
-    if (cart.size === 0) {
-        list.appendChild(makeElement("p", "Your cart is empty."));
+});
+
+// =======================================
+// INITIALISE MAP
+// =======================================
+
+function initialiseMap() {
+    if (map || !window.L) {
         return;
     }
-    cart.forEach(function (item, id) {
-        const row = makeElement("article");
-        if (item.product.image) {
-            const img = makeElement("img");
-            img.src = item.product.image;
-            img.alt = item.product.name;
-            row.appendChild(img);
+
+    // This is only the initial map view, not the user's GPS position.
+    map = L.map("sos-map").setView([-30.5595, 22.9375], 5);
+
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    L.control.scale().addTo(map);
+}
+
+initialiseMap();
+
+// =======================================
+// LOAD TRUSTED CONTACTS FROM FIRESTORE
+// =======================================
+
+async function loadTrustedContacts() {
+    if (!currentUser) {
+        throw new Error("Please sign in to access trusted contacts.");
+    }
+
+    const contactsRef = collection(
+        db,
+        "users",
+        currentUser.uid,
+        "trustedContacts"
+    );
+
+    const snapshot = await getDocs(contactsRef);
+
+    return snapshot.docs.map(document => ({
+        id: document.id,
+        ...document.data()
+    }));
+}
+
+// =======================================
+// NORMALISE PHONE NUMBERS
+// =======================================
+
+function normaliseSouthAfricanPhone(phone) {
+    const digits = String(phone || "").replace(/\D/g, "");
+
+    // South African local number: 0821234567
+    if (/^0[0-9]{9}$/.test(digits)) {
+        return "+27" + digits.substring(1);
+    }
+
+    // South African international number without plus: 27821234567
+    if (/^27[0-9]{9}$/.test(digits)) {
+        return "+" + digits;
+    }
+
+    // Other international numbers stored with a plus.
+    const trimmed = String(phone || "").trim();
+
+    if (/^\+[1-9][0-9]{7,14}$/.test(trimmed)) {
+        return trimmed;
+    }
+
+    return null;
+}
+
+// =======================================
+// UPDATE THE GPS MAP
+// =======================================
+
+function updateMapPosition(position) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+    const accuracy = position.coords.accuracy;
+
+    latestLocation = {
+        latitude,
+        longitude,
+        accuracy,
+        updatedAt: new Date()
+    };
+
+    // Latest location link used in newly prepared SMS messages.
+    locationLink =
+        `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+    openMapLink.href = locationLink;
+
+    if (!map) {
+        initialiseMap();
+    }
+
+    if (map && window.L) {
+        const coordinates = [latitude, longitude];
+
+        if (!userMarker) {
+            userMarker = L.marker(coordinates)
+                .addTo(map)
+                .bindPopup("Your current GPS location");
+        } else {
+            userMarker.setLatLng(coordinates);
         }
-        row.appendChild(makeElement("h3", item.product.name));
-        row.appendChild(
-            makeElement("p", "Unit price: " + formatPrice(item.product.price))
+
+        userMarker.setPopupContent(
+            `Your current GPS location<br>
+             Accuracy: approximately ${Math.round(accuracy)} metres`
         );
-        row.appendChild(
-            makeElement("p", "Quantity: " + item.quantity)
+
+        if (!accuracyCircle) {
+            accuracyCircle = L.circle(coordinates, {
+                radius: accuracy,
+                color: "#c06346",
+                fillColor: "#c06346",
+                fillOpacity: 0.12,
+                weight: 2
+            }).addTo(map);
+        } else {
+            accuracyCircle.setLatLng(coordinates);
+            accuracyCircle.setRadius(accuracy);
+        }
+
+        map.setView(coordinates, Math.max(map.getZoom(), 16));
+    }
+
+    // Show GPS status and coordinates.
+    locationStatus.replaceChildren();
+
+    const accuracyText = document.createElement("p");
+    accuracyText.textContent =
+        `GPS detected. Accuracy: approximately ${Math.round(accuracy)} metres.`;
+
+    const coordinatesText = document.createElement("p");
+    coordinatesText.textContent =
+        `Latitude: ${latitude.toFixed(6)} | Longitude: ${longitude.toFixed(6)}`;
+
+    const updatedText = document.createElement("p");
+    updatedText.className = "small-note";
+    updatedText.textContent =
+        `Last location update: ${latestLocation.updatedAt.toLocaleTimeString()}`;
+
+    locationStatus.append(
+        accuracyText,
+        coordinatesText,
+        updatedText
+    );
+
+    // Newly prepared messages use the newest available location.
+    updateContactMessageLinks();
+}
+
+// =======================================
+// START LIVE GPS TRACKING
+// =======================================
+
+function startLiveTracking() {
+    return new Promise(resolve => {
+        if (!navigator.geolocation) {
+            locationStatus.textContent =
+                "GPS is not supported by this browser.";
+
+            resolve(null);
+            return;
+        }
+
+        if (trackingActive && watchId !== null) {
+            resolve(latestLocation);
+            return;
+        }
+
+        trackingActive = true;
+        stopTrackingButton.disabled = false;
+
+        locationStatus.textContent =
+            "Requesting your GPS location. Please allow location access.";
+
+        let firstLocationReceived = false;
+
+        const firstLocationTimeout = setTimeout(() => {
+            if (!firstLocationReceived) {
+                firstLocationReceived = true;
+
+                locationStatus.textContent =
+                    "GPS is taking too long. Check your location permission and try again.";
+
+                resolve(null);
+            }
+        }, 20000);
+
+        watchId = navigator.geolocation.watchPosition(
+            position => {
+                updateMapPosition(position);
+
+                if (!firstLocationReceived) {
+                    firstLocationReceived = true;
+                    clearTimeout(firstLocationTimeout);
+                    resolve(latestLocation);
+                }
+
+                if (trackingActive) {
+                    sosStatus.textContent =
+                        "Your SOS options are ready. Live GPS tracking is active.";
+                }
+            },
+
+            error => {
+                console.error("GPS error:", error);
+
+                if (error.code === error.PERMISSION_DENIED) {
+                    locationStatus.textContent =
+                        "Location permission was denied. Enable location access in your browser settings.";
+                } else if (error.code === error.POSITION_UNAVAILABLE) {
+                    locationStatus.textContent =
+                        "Your GPS location is currently unavailable.";
+                } else {
+                    locationStatus.textContent =
+                        "Could not obtain GPS location. Check your location settings and try again.";
+                }
+
+                if (!firstLocationReceived) {
+                    firstLocationReceived = true;
+                    clearTimeout(firstLocationTimeout);
+                    resolve(null);
+                }
+            },
+
+            {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 15000
+            }
         );
-        row.appendChild(
-            makeElement(
-                "p",
-                "Item total: " +
-                    formatPrice(item.product.price * item.quantity)
-            )
-        );
-        const decrease = makeElement("button", "Decrease");
-        decrease.type = "button";
-        decrease.addEventListener("click", function () {
-            changeQuantity(id, -1);
-        });
-        const increase = makeElement("button", "Increase");
-        increase.type = "button";
-        increase.addEventListener("click", function () {
-            changeQuantity(id, 1);
-        });
-        const remove = makeElement("button", "Remove");
-        remove.type = "button";
-        remove.addEventListener("click", function () {
-            removeFromCart(id);
-        });
-        row.appendChild(decrease);
-        row.appendChild(increase);
-        row.appendChild(remove);
-        list.appendChild(row);
     });
-    const message = getElement("cart-message");
-    if (message) {
-        message.textContent =
-            "Subtotal: " + formatPrice(total) +
-            ". Checkout is not yet available.";
+}
+
+// =======================================
+// STOP LIVE GPS TRACKING
+// =======================================
+
+function stopLiveTracking() {
+    if (watchId !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+    }
+
+    watchId = null;
+    trackingActive = false;
+
+    stopTrackingButton.disabled = true;
+
+    if (latestLocation) {
+        locationStatus.replaceChildren();
+
+        const stoppedText = document.createElement("p");
+        stoppedText.textContent =
+            "Live tracking stopped. The map shows your last recorded location.";
+
+        const coordinatesText = document.createElement("p");
+        coordinatesText.textContent =
+            `Latitude: ${latestLocation.latitude.toFixed(6)} | Longitude: ${latestLocation.longitude.toFixed(6)}`;
+
+        locationStatus.append(stoppedText, coordinatesText);
+
+        sosStatus.textContent =
+            "Live tracking stopped. You can still prepare SOS messages.";
+    } else {
+        locationStatus.textContent =
+            "Live tracking stopped. No GPS location was obtained.";
     }
 }
-/* ==============================
-   TAB NAVIGATION
-============================== */
-function openTab(tabId) {
-    const tabs = ["products-tab", "services-tab", "cart-tab"];
-    if (!tabs.includes(tabId)) return;
-    document.querySelectorAll(".shop-tab").forEach(function (button) {
-        const active = button.dataset.tab === tabId;
-        button.setAttribute("aria-selected", String(active));
-    });
-    tabs.forEach(function (id) {
-        const section = getElement(id);
-        if (section) {
-            section.hidden = id !== tabId;
-        }
-    });
-    if (tabId === "products-tab") renderProducts();
-    if (tabId === "services-tab") renderProviders();
-    if (tabId === "cart-tab") renderCart();
+
+// =======================================
+// BUILD THE SOS MESSAGE
+// =======================================
+
+function buildSOSMessage() {
+    if (latestLocation && locationLink) {
+        return (
+            "SOS! I need help. Please contact me as soon as possible.\n\n" +
+            "My latest available GPS location:\n" +
+            locationLink +
+            "\n\nGPS accuracy: approximately " +
+            Math.round(latestLocation.accuracy) +
+            " metres.\n\n" +
+            "Please open the map link to see my location."
+        );
+    }
+
+    return (
+        "SOS! I need help. Please contact me as soon as possible.\n\n" +
+        "My GPS location is currently unavailable. Please contact me."
+    );
 }
-/* ==============================
-   INITIALISE
-============================== */
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".shop-tab").forEach(function (button) {
-        button.addEventListener("click", function () {
-            openTab(button.dataset.tab);
+
+// =======================================
+// UPDATE PREPARED SMS LINKS
+// =======================================
+
+function updateContactMessageLinks() {
+    const messageButtons = deliveryList.querySelectorAll(
+        ".message-button"
+    );
+
+    messageButtons.forEach(button => {
+        const phone = button.dataset.phone;
+
+        if (!phone) {
+            return;
+        }
+
+        const message = buildSOSMessage();
+
+        button.href =
+            `sms:${phone}?body=${encodeURIComponent(message)}`;
+    });
+}
+
+// =======================================
+// CREATE A TRUSTED CONTACT CARD
+// =======================================
+
+function createContactCard(contact) {
+    const item = document.createElement("li");
+
+    const name = document.createElement("span");
+    name.className = "contact-name";
+    name.textContent = contact.name || "Trusted contact";
+
+    const phoneText = document.createElement("span");
+    phoneText.className = "contact-details";
+    phoneText.textContent = contact.phone || "No phone number saved";
+
+    item.append(name, phoneText);
+
+    if (contact.relationship) {
+        const relationship = document.createElement("span");
+        relationship.className = "contact-details";
+        relationship.textContent =
+            `Relationship: ${contact.relationship}`;
+
+        item.appendChild(relationship);
+    }
+
+    const phone = normaliseSouthAfricanPhone(contact.phone);
+    const actions = document.createElement("div");
+    actions.className = "contact-actions";
+
+    if (phone) {
+        const callButton = document.createElement("a");
+        callButton.className = "call-button";
+        callButton.href = `tel:${phone}`;
+        callButton.textContent =
+            `Call ${contact.name || "contact"}`;
+
+        callButton.setAttribute(
+            "aria-label",
+            `Call ${contact.name || "trusted contact"}`
+        );
+
+        const messageButton = document.createElement("a");
+        messageButton.className = "message-button";
+        messageButton.dataset.phone = phone;
+        messageButton.textContent = "Prepare SOS message";
+
+        messageButton.setAttribute(
+            "aria-label",
+            `Prepare an SOS SMS for ${contact.name || "trusted contact"}. You must tap Send yourself.`
+        );
+
+        actions.append(callButton, messageButton);
+    } else {
+        const warning = document.createElement("span");
+        warning.className = "contact-details";
+        warning.textContent =
+            "A valid phone number is needed before calling or messaging this contact.";
+
+        actions.appendChild(warning);
+    }
+
+    item.appendChild(actions);
+
+    return item;
+}
+
+// =======================================
+// ACTIVATE SOS
+// =======================================
+
+async function activateSOS() {
+    if (activationInProgress) {
+        return;
+    }
+
+    activationInProgress = true;
+
+    sosButton.disabled = true;
+    sosButton.textContent = "SOS";
+    sosScanner.classList.add("searching");
+
+    sosStatus.textContent =
+        "Preparing your SOS options...";
+
+    safeCircleStatus.textContent =
+        "Loading your trusted contacts...";
+
+    deliveryList.replaceChildren();
+
+    try {
+        await authReady;
+
+        if (!currentUser) {
+            sosStatus.textContent =
+                "Please sign in before using SOS.";
+
+            safeCircleStatus.textContent =
+                "Sign in to access your saved trusted contacts.";
+
+            const loginLink = document.createElement("a");
+            loginLink.href = "login.html";
+            loginLink.textContent = " Go to login";
+
+            safeCircleStatus.appendChild(loginLink);
+            return;
+        }
+
+        // Begin GPS tracking while loading contacts.
+        const locationPromise = startLiveTracking();
+
+        let contacts;
+
+        try {
+            contacts = await loadTrustedContacts();
+        } catch (error) {
+            console.error(
+                "Could not load trusted contacts:",
+                error
+            );
+
+            sosStatus.textContent =
+                "Could not load your trusted contacts.";
+
+            safeCircleStatus.textContent =
+                "Check your internet connection and Firebase Firestore permissions.";
+
+            return;
+        }
+
+        await locationPromise;
+
+        if (contacts.length === 0) {
+            sosStatus.textContent =
+                "No trusted contacts were found.";
+
+            safeCircleStatus.textContent =
+                "Add trusted contacts first, then return to SOS.";
+
+            const addContactsLink = document.createElement("a");
+            addContactsLink.href = "live-location.html";
+            addContactsLink.textContent =
+                " Open trusted contacts";
+
+            safeCircleStatus.appendChild(addContactsLink);
+            return;
+        }
+
+        contacts.forEach(contact => {
+            deliveryList.appendChild(
+                createContactCard(contact)
+            );
         });
-    });
-    getElement("product-search")?.addEventListener("input", renderProducts);
-    getElement("service-search")?.addEventListener("input", renderProviders);
-    getElement("service-category")?.addEventListener("change", renderProviders);
-    getElement("clear-cart")?.addEventListener("click", clearCart);
-    getElement("cancel-checkout")?.addEventListener("click", function () {
-        getElement("checkout-section").hidden = true;
-    });
-    renderProducts();
-    renderProviders();
-    renderCart();
-    openTab("products-tab");
+
+        // Add the most recent location to every prepared message link.
+        updateContactMessageLinks();
+
+        safeCircleStatus.textContent =
+            `${contacts.length} trusted contact(s) loaded. Choose a contact and prepare an SOS message.`;
+
+        if (latestLocation) {
+            sosStatus.textContent =
+                "SOS options are ready. Your latest GPS location is available.";
+        } else {
+            sosStatus.textContent =
+                "Your contacts are ready, but GPS could not obtain your location.";
+        }
+    } catch (error) {
+        console.error("SOS setup error:", error);
+
+        sosStatus.textContent =
+            "Something went wrong while preparing SOS.";
+
+        safeCircleStatus.textContent =
+            error.message || "Please try again.";
+    } finally {
+        activationInProgress = false;
+
+        sosButton.disabled = false;
+        sosButton.textContent = "SIZA";
+
+        sosScanner.classList.remove("searching");
+    }
+}
+
+// =======================================
+// BUTTON EVENTS
+// =======================================
+
+sosButton.addEventListener("click", activateSOS);
+
+stopTrackingButton.addEventListener(
+    "click",
+    stopLiveTracking
+);
+
+// Ensure the map displays correctly after the page loads.
+window.addEventListener("load", () => {
+    if (map) {
+        setTimeout(() => map.invalidateSize(), 150);
+    }
 });
